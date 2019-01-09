@@ -16,11 +16,50 @@ namespace CAS.myFunctions
 {
     public partial class DiaSettings : Form
     {
-        CAS.myUtilities.MySettings objSettings = new myUtilities.MySettings();
+        CAS.myUtilities.myConfig _config = new myUtilities.myConfig();
+        string value;
 
         public DiaSettings()
         {
             InitializeComponent();
+
+            //Init Configuration
+            //Basislayer
+            value = _config.getAppSetting("Basislayer");
+            if (value == String.Empty)
+                _config.setAppSetting("Basislayer", "MP-P");
+            
+            //Header
+            value = _config.getAppSetting("useHeader");
+            if (value == String.Empty)
+                _config.setAppSetting("useHeader", "False");
+            cB_Header.Checked = Convert.ToBoolean(value);
+
+            value = _config.getAppSetting("Header");
+            if (value == String.Empty)
+                _config.setAppSetting("Header", "PNr, X,Y,Z");
+            tb_Header.Text = value;
+
+            //Output File
+            value = _config.getAppSetting("useOutputFile");
+            if (value == String.Empty)
+                _config.setAppSetting("useOutputFile", "False");
+            cB_OutputFile.Checked = Convert.ToBoolean(value);
+
+            value = _config.getAppSetting("OutputFile");
+            tb_PunktExport.Text = value;
+
+            //Separator & Decimal
+            value = _config.getAppSetting("Separator");
+            if (value == String.Empty)
+                _config.setAppSetting("Separator", ";");
+            tB_Separator.Text = value;
+
+            value = _config.getAppSetting("Decimal");
+            if (value == String.Empty)
+                _config.setAppSetting("Decimal", ".");
+            cb_Decimal.SelectedItem = value;
+            cb_Decimal.Refresh();
 
             //Treenode
             TreeNode root = treeView1.Nodes.Add("CAS 2019");
@@ -44,21 +83,21 @@ namespace CAS.myFunctions
                 }
             }
 
-            cbBasislayer.SelectedIndex = cbBasislayer.FindStringExact(objSettings.Basislayer);
+            cbBasislayer.SelectedIndex = cbBasislayer.FindStringExact(_config.getAppSetting("Basislayer"));
 
             if (cbBasislayer.SelectedIndex == -1)
             {
                 if (cbBasislayer.Items.Count > 0)
                 {
-                    DialogResult res = MessageBox.Show(objSettings.Basislayer + " nicht gefunden! Soll dieser Layer erstellt werden?", "", MessageBoxButtons.YesNo);
+                    DialogResult res = MessageBox.Show(_config.getAppSetting("Basislayer") + " nicht gefunden! Soll dieser Layer erstellt werden?", "", MessageBoxButtons.YesNo);
                     if (res == DialogResult.Yes)
-                        objLayer.Add(objSettings.Basislayer);
+                        objLayer.Add(_config.getAppSetting("Basislayer"));
                 }
                 else
                 {
-                    objLayer.Add(objSettings.Basislayer);
-                    MessageBox.Show(objSettings.Basislayer + " wurde erstellt!");
-                    cbBasislayer.Items.Add(objSettings.Basislayer);
+                    objLayer.Add(_config.getAppSetting("Basislayer"));
+                    MessageBox.Show(_config.getAppSetting("Basislayer") + " wurde erstellt!");
+                    cbBasislayer.Items.Add(_config.getAppSetting("Basislayer"));
                     cbBasislayer.SelectedItem = cbBasislayer.Items[0];
                 }
             }
@@ -71,14 +110,17 @@ namespace CAS.myFunctions
             foreach(System.IO.FileInfo fi in ParentDirectory.GetFiles())
             {
                 if (Path.GetExtension(fi.Name) == ".dwg")
-                    cbBlock.Items.Add(Path.GetFileName(fi.Name));
+                {
+                    string _block = Path.GetFileNameWithoutExtension(fi.Name);
+                    cbBlock.Items.Add(Path.GetFileName(_block));
+                }
             }
 
             if (cbBlock.Items.Count > 0)
             {
                 try
                 {
-                    cbBlock.SelectedIndex = cbBlock.FindStringExact(objSettings.Block);
+                    cbBlock.SelectedIndex = cbBlock.FindStringExact(_config.getAppSetting("Block"));
                 }
                 catch
                 {
@@ -89,6 +131,13 @@ namespace CAS.myFunctions
             else
                 MessageBox.Show("Keine Blöcke gefunden!");
 
+            //Header
+            cB_Header.Checked = Convert.ToBoolean(_config.getAppSetting("useHeader"));
+            tb_Header.Text = _config.getAppSetting("Header");
+
+            //Output File
+            cB_OutputFile.Checked = Convert.ToBoolean(_config.getAppSetting("useOutputFile"));
+            tb_PunktExport.Text = _config.getAppSetting("OutputFile");
         }
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
@@ -105,7 +154,7 @@ namespace CAS.myFunctions
 
                     break;
 
-                    case "Export":
+                case "Export":
                     panelExport.BringToFront();
 
                     break;
@@ -125,16 +174,16 @@ namespace CAS.myFunctions
         private void cbBlock_SelectedIndexChanged(object sender, EventArgs e)
         {
             string item = cbBlock.SelectedItem.ToString();
-            if (item != null && item != objSettings.Block)
-                objSettings.Block = item;
+            if (item != null && item != _config.getAppSetting("Block"))
+                _config.setAppSetting("Block", item);
            
         }
 
         private void cbBasislayer_SelectedIndexChanged(object sender, EventArgs e)
         {
             string item = cbBasislayer.SelectedItem.ToString();
-            if (item != null && item != objSettings.Basislayer)
-                objSettings.Basislayer = item;
+            if (item != null && item != _config.getAppSetting("Basislayer"))
+                _config.setAppSetting("Basislayer", item);
         }
 
         private void btExportFile_Click(object sender, EventArgs e)
@@ -144,6 +193,48 @@ namespace CAS.myFunctions
 
             if (diaOpenFile.ShowDialog() == DialogResult.OK)
                 tb_PunktExport.Text = diaOpenFile.FileName;
+        }
+
+        private void tb_PunktExport_TextChanged(object sender, EventArgs e)
+        {
+            _config.setAppSetting("OutputFile", tb_PunktExport.Text);
+        }
+
+        private void cB_OutputFile_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.setAppSetting("useOutputFile", cB_OutputFile.Checked.ToString());
+        }
+
+        private void cB_Header_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.setAppSetting("useHeader", cB_Header.Checked.ToString());
+        }
+
+        private void tb_Header_TextChanged(object sender, EventArgs e)
+        {
+            _config.setAppSetting("Header", tb_Header.Text);
+        }
+
+        private void tB_Separator_TextChanged(object sender, EventArgs e)
+        {
+            _config.setAppSetting("Separator", tB_Separator.Text);
+        }
+
+        private void cb_Decimal_TextChanged(object sender, EventArgs e)
+        {
+            _config.setAppSetting("Decimal", cb_Decimal.Text);
+        }
+
+        private void tB_Separator_Validating(object sender, CancelEventArgs e)
+        {
+            string val = tB_Separator.Text;
+
+            if (val.Length != 1)
+            {
+                e.Cancel = true;
+            }
+            else
+                e.Cancel = false;
         }
     }
 }

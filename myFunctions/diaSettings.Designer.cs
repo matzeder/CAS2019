@@ -32,9 +32,17 @@
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.panelExport = new System.Windows.Forms.Panel();
+            this.tb_Header = new System.Windows.Forms.TextBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.tB_Separator = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.cb_Decimal = new System.Windows.Forms.ComboBox();
+            this.cB_Header = new System.Windows.Forms.CheckBox();
+            this.cB_OutputFile = new System.Windows.Forms.CheckBox();
             this.btExportFile = new System.Windows.Forms.Button();
             this.tb_PunktExport = new System.Windows.Forms.TextBox();
-            this.labelAusgabedatei = new System.Windows.Forms.Label();
             this.panelImport = new System.Windows.Forms.Panel();
             this.cbBlock = new System.Windows.Forms.ComboBox();
             this.labelBlock = new System.Windows.Forms.Label();
@@ -52,6 +60,7 @@
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.panelExport.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.panelImport.SuspendLayout();
             this.panelGeneral.SuspendLayout();
             this.SuspendLayout();
@@ -110,18 +119,113 @@
             // panelExport
             // 
             this.panelExport.BackColor = System.Drawing.SystemColors.Control;
+            this.panelExport.Controls.Add(this.tb_Header);
+            this.panelExport.Controls.Add(this.groupBox1);
+            this.panelExport.Controls.Add(this.cB_Header);
+            this.panelExport.Controls.Add(this.cB_OutputFile);
             this.panelExport.Controls.Add(this.btExportFile);
             this.panelExport.Controls.Add(this.tb_PunktExport);
-            this.panelExport.Controls.Add(this.labelAusgabedatei);
             this.panelExport.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelExport.Location = new System.Drawing.Point(0, 0);
             this.panelExport.Name = "panelExport";
             this.panelExport.Size = new System.Drawing.Size(465, 400);
             this.panelExport.TabIndex = 1;
             // 
+            // tb_Header
+            // 
+            this.tb_Header.Location = new System.Drawing.Point(39, 34);
+            this.tb_Header.Name = "tb_Header";
+            this.tb_Header.Size = new System.Drawing.Size(317, 20);
+            this.tb_Header.TabIndex = 10;
+            this.tb_Header.TextChanged += new System.EventHandler(this.tb_Header_TextChanged);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.tB_Separator);
+            this.groupBox1.Controls.Add(this.label3);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.cb_Decimal);
+            this.groupBox1.Location = new System.Drawing.Point(39, 167);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(138, 113);
+            this.groupBox1.TabIndex = 9;
+            this.groupBox1.TabStop = false;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(7, 20);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(87, 16);
+            this.label4.TabIndex = 11;
+            this.label4.Text = "Formatierung";
+            // 
+            // tB_Separator
+            // 
+            this.tB_Separator.Location = new System.Drawing.Point(93, 48);
+            this.tB_Separator.Name = "tB_Separator";
+            this.tB_Separator.Size = new System.Drawing.Size(31, 20);
+            this.tB_Separator.TabIndex = 10;
+            this.tB_Separator.TextChanged += new System.EventHandler(this.tB_Separator_TextChanged);
+            this.tB_Separator.Validating += new System.ComponentModel.CancelEventHandler(this.tB_Separator_Validating);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 51);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(72, 13);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "Trennzeichen";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 87);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(81, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Dezimalzeichen";
+            // 
+            // cb_Decimal
+            // 
+            this.cb_Decimal.FormattingEnabled = true;
+            this.cb_Decimal.Items.AddRange(new object[] {
+            ".",
+            ","});
+            this.cb_Decimal.Location = new System.Drawing.Point(93, 84);
+            this.cb_Decimal.Name = "cb_Decimal";
+            this.cb_Decimal.Size = new System.Drawing.Size(31, 21);
+            this.cb_Decimal.TabIndex = 7;
+            this.cb_Decimal.TextChanged += new System.EventHandler(this.cb_Decimal_TextChanged);
+            // 
+            // cB_Header
+            // 
+            this.cB_Header.AutoSize = true;
+            this.cB_Header.Location = new System.Drawing.Point(21, 9);
+            this.cB_Header.Name = "cB_Header";
+            this.cB_Header.Size = new System.Drawing.Size(61, 17);
+            this.cB_Header.TabIndex = 5;
+            this.cB_Header.Text = "Header";
+            this.cB_Header.UseVisualStyleBackColor = true;
+            this.cB_Header.CheckedChanged += new System.EventHandler(this.cB_Header_CheckedChanged);
+            // 
+            // cB_OutputFile
+            // 
+            this.cB_OutputFile.AutoSize = true;
+            this.cB_OutputFile.Location = new System.Drawing.Point(21, 77);
+            this.cB_OutputFile.Name = "cB_OutputFile";
+            this.cB_OutputFile.Size = new System.Drawing.Size(137, 17);
+            this.cB_OutputFile.TabIndex = 4;
+            this.cB_OutputFile.Text = "Ausgabefile verwenden";
+            this.cB_OutputFile.UseVisualStyleBackColor = true;
+            this.cB_OutputFile.CheckedChanged += new System.EventHandler(this.cB_OutputFile_CheckedChanged);
+            // 
             // btExportFile
             // 
-            this.btExportFile.Location = new System.Drawing.Point(418, 12);
+            this.btExportFile.Location = new System.Drawing.Point(362, 100);
             this.btExportFile.Name = "btExportFile";
             this.btExportFile.Size = new System.Drawing.Size(27, 23);
             this.btExportFile.TabIndex = 2;
@@ -130,21 +234,13 @@
             // 
             // tb_PunktExport
             // 
-            this.tb_PunktExport.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.tb_PunktExport.Location = new System.Drawing.Point(95, 13);
+            this.tb_PunktExport.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.tb_PunktExport.Location = new System.Drawing.Point(39, 101);
             this.tb_PunktExport.Name = "tb_PunktExport";
             this.tb_PunktExport.ReadOnly = true;
             this.tb_PunktExport.Size = new System.Drawing.Size(317, 20);
             this.tb_PunktExport.TabIndex = 1;
-            // 
-            // labelAusgabedatei
-            // 
-            this.labelAusgabedatei.AutoSize = true;
-            this.labelAusgabedatei.Location = new System.Drawing.Point(14, 17);
-            this.labelAusgabedatei.Name = "labelAusgabedatei";
-            this.labelAusgabedatei.Size = new System.Drawing.Size(75, 13);
-            this.labelAusgabedatei.TabIndex = 0;
-            this.labelAusgabedatei.Text = "Ausgabedatei:";
+            this.tb_PunktExport.TextChanged += new System.EventHandler(this.tb_PunktExport_TextChanged);
             // 
             // panelImport
             // 
@@ -249,6 +345,8 @@
             this.splitContainer2.ResumeLayout(false);
             this.panelExport.ResumeLayout(false);
             this.panelExport.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.panelImport.ResumeLayout(false);
             this.panelImport.PerformLayout();
             this.panelGeneral.ResumeLayout(false);
@@ -268,11 +366,19 @@
         private System.Windows.Forms.Panel panelGeneral;
         private System.Windows.Forms.Panel panelExport;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label labelAusgabedatei;
         private System.Windows.Forms.ComboBox cbBasislayer;
         private System.Windows.Forms.ComboBox cbBlock;
         private System.Windows.Forms.Label labelBlock;
         private System.Windows.Forms.Button btExportFile;
         private System.Windows.Forms.TextBox tb_PunktExport;
+        private System.Windows.Forms.CheckBox cB_OutputFile;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.TextBox tB_Separator;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox cb_Decimal;
+        private System.Windows.Forms.CheckBox cB_Header;
+        private System.Windows.Forms.TextBox tb_Header;
+        private System.Windows.Forms.Label label4;
     }
 }

@@ -33,16 +33,20 @@
   <ItemGroup>
     <Reference Include="accoremgd">
       <HintPath>C:\Program Files\Autodesk\AutoCAD 2019\accoremgd.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="acdbmgd">
       <HintPath>C:\Program Files\Autodesk\AutoCAD 2019\acdbmgd.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="acmgd">
       <HintPath>C:\Program Files\Autodesk\AutoCAD 2019\acmgd.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -57,6 +61,7 @@
     <Compile Include="myAutoCAD\Blöcke.cs" />
     <Compile Include="myAutoCAD\Layer.cs" />
     <Compile Include="myAutoCAD\Utilities.cs" />
+    <Compile Include="myAutoCAD\_basicBlocks.cs" />
     <Compile Include="myFunctions\AboutBox_CAS.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -72,8 +77,8 @@
     </Compile>
     <Compile Include="myFunctions\PtExport.cs" />
     <Compile Include="myFunctions\PtImport.cs" />
+    <Compile Include="myUtilities\myConfig.cs" />
     <Compile Include="myUtilities\myRegistry.cs" />
-    <Compile Include="myUtilities\mySettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

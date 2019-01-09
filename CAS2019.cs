@@ -23,6 +23,14 @@ namespace CAS
             objPtImport.run();
         }
 
+        //pt export
+        [CommandMethod("cas_ptExport")]
+        public void CasPtExport()
+        {
+            myFunctions.PtExport objPtExport = new myFunctions.PtExport();
+            objPtExport.run();
+        }
+
         //show Settings
         [CommandMethod("cas_Settings")]
         public void casSettings()
