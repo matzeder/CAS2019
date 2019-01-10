@@ -20,10 +20,14 @@ namespace CAS.myFunctions
         private myConfig _config = new myConfig();
         private string _Filename;
         private string _Text;
+        private string _block, _basislayer;
 
         //Methoden
         public void run()
         {
+            _block = _config.getAppSetting("Block");
+            _basislayer = _config.getAppSetting("Basislayer");
+
             OpenFileDialog ddOpenFile = new OpenFileDialog();
             ddOpenFile.Title = "Vermessungspunkte importieren";
             ddOpenFile.Filter = "Punktdatei|*.csv";
@@ -37,12 +41,6 @@ namespace CAS.myFunctions
             {
                 _Filename = ddOpenFile.FileName;
                 bool fileOK = true;
-                BlockTableRecord _btRec = null;
-
-                Prototyp.Instance.Blockname = _config.getAppSetting("Block");
-                _btRec = Prototyp.Instance.btRec;
-                if (_btRec == null)
-                    fileOK = false;
 
                 //Punktdatei einlesen
                 try
@@ -55,12 +53,18 @@ namespace CAS.myFunctions
 
                 if (fileOK)
                 {
-                    bool bHeader = false;
+                    bool bHeader = true;
                     bool bError = false;
+                    int firstRow = 0;       //erste einzulesende Zeile
+
                     string[] arZeile = _Text.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
                     List<Messpunkt> _lsMP = new List<Messpunkt>();
 
-                    for (int i = 0; i < arZeile.Length; i++)
+                    //Header?
+                    if (bHeader)
+                        firstRow = 1;
+
+                    for (int i = firstRow; i < arZeile.Length; i++)
                     {
                         try
                         {
@@ -68,12 +72,25 @@ namespace CAS.myFunctions
                             string[] arElement = Zeile.Split(new char[] { ';' }, StringSplitOptions.None);
 
                             string PNum = arElement[0];
-                            double X = Convert.ToDouble(arElement[1]);
-                            double Y = Convert.ToDouble(arElement[2]);
-                            double Z = Convert.ToDouble(arElement[3]);
+                            double X = Convert.ToDouble(arElement[1].Replace(',','.'));
+                            double Y = Convert.ToDouble(arElement[2].Replace(',', '.'));
 
-                            Point3d Pos = new Point3d(X, Y, Z);
-                            _lsMP.Add(new Messpunkt(PNum, Pos));
+                            //Höhe
+                            string z = arElement[3];
+                            double? Z = null;
+                            if (z != String.Empty)
+                                Z = Convert.ToDouble(z.Replace(',', '.'));
+
+                            if(Z.HasValue)
+                            {
+                                Point3d pos = new Point3d(X, Y, Z.Value);
+                                _lsMP.Add(new Messpunkt(PNum, pos, Z.Value));
+                            }
+                            else
+                            {
+                                Point2d pos = new Point2d(X, Y);
+                                _lsMP.Add(new Messpunkt(PNum, pos));
+                            }
                         }
                         catch
                         {
@@ -89,7 +106,7 @@ namespace CAS.myFunctions
                         {
                             foreach (Messpunkt _MP in _lsMP)
                             {
-                                _MP.draw(_btRec, _config.getAppSetting("Basislayer"));
+                                _MP.draw(_block, _basislayer);
                             }
                         }
                         else

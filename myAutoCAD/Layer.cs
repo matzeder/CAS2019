@@ -127,7 +127,7 @@ namespace CAS.myAutoCAD
         }
 
         /// <summary>
-        /// Prüft, ob Layer vorhanden. Kann diesen anlegen.
+        /// Prüft, ob Layer vorhanden. Legt diesen an, falls nicht vorhanden.
         /// </summary>
         /// <param name="Layer"></param>
         /// <param name="create"></param>

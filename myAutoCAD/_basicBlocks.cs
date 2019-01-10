@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.IO;
 
 using Autodesk.AutoCAD.Runtime;
 using Autodesk.AutoCAD.DatabaseServices;
@@ -16,7 +18,7 @@ namespace CAS.myAutoCAD
     {
         private string _Name;
         private string _PNum;
-        private Point3d _Pos;
+        private Point3d _Pos3d;
         private string _Layer;
         private double[] _scaleFactor;
         private double? _Höhe;
@@ -27,18 +29,24 @@ namespace CAS.myAutoCAD
         private List<Att> _Attributes = new List<Att>();
 
         //Constructor
-        public Messpunkt(string PNum, Point3d Pos, double? Höhe)
+        public Messpunkt(string PNum, Point3d Pos, double Höhe)
         {
             _PNum = PNum;
-            _Pos = Pos;
+            _Pos3d = new Point3d(Pos.X, Pos.Y, Höhe);
             _Höhe = Höhe;
+        }
+
+        public Messpunkt(string PNum, Point2d Pos)
+        {
+            _PNum = PNum;
+            _Pos3d = new Point3d(Pos.X, Pos.Y, 0);
         }
 
         public Messpunkt(BlockReference blkRef)
         {
             _blkRef = blkRef;
             _Name = blkRef.Name;
-            _Pos = blkRef.Position;
+            _Pos3d = blkRef.Position;
             _Layer = blkRef.Layer;
             _scaleFactor = new double[] {blkRef.ScaleFactors.X,
                                          blkRef.ScaleFactors.Y,
@@ -48,7 +56,7 @@ namespace CAS.myAutoCAD
         public Messpunkt(string PNum, Point3d Pos3d)
         {
             _PNum = PNum;
-            _Pos = Pos3d;
+            _Pos3d = Pos3d;
         }
 
         //Properties
@@ -63,7 +71,7 @@ namespace CAS.myAutoCAD
 
         public Point3d Pos
         {
-            get { return _Pos; }
+            get { return _Pos3d; }
         }
 
         public double? CASHöhe
@@ -107,36 +115,119 @@ namespace CAS.myAutoCAD
             return att;
         }
 
-        public void draw(BlockTableRecord btr, string Basislayer)
+        public void draw(string block, string Basislayer)
         {
             Database db = HostApplicationServices.WorkingDatabase;
             Autodesk.AutoCAD.DatabaseServices.TransactionManager myTm = db.TransactionManager;
             Transaction myT = db.TransactionManager.StartTransaction();
             Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
-            BlockTableRecord _btRec = null;
+            ObjectContextManager conTextManager = db.ObjectContextManager;
+
+            Dictionary<string, Point3d> _attPos = new Dictionary<string, Point3d>();
+            List<AttributeDefinition> _attDef = new List<AttributeDefinition>();
 
             MyLayer objLayer = MyLayer.Instance;
+            objLayer.CheckLayer(Basislayer, true);
 
-            //Block in dwg suchen
             try
             {
                 using (DocumentLock dl = Application.DocumentManager.MdiActiveDocument.LockDocument())
                 {
-                    //BlockTable bt = (BlockTable)myT.GetObject(db.BlockTableId, OpenMode.ForRead);
-                    //BlockTableRecord btr = (BlockTableRecord)myT.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite);
-                    
-                    _btRec = Prototyp.Instance.btRec;
-                    //btrDef = (BlockTableRecord)myT.GetObject(bt[blockName], OpenMode.ForRead);
-                    
+                    //Block in Zeichnung einfügen
+                    Prototyp.Instance.Blockname = block;
+                    if (Prototyp.Instance.OK)
+                    {
+                        BlockTable bt = (BlockTable)myT.GetObject(db.BlockTableId, OpenMode.ForRead);
+                        BlockTableRecord btr = (BlockTableRecord)myT.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite);
+                        BlockTableRecord btrDef = (BlockTableRecord)myT.GetObject(bt[block], OpenMode.ForRead);
+
+                        //Attribute übernehmen      
+                        if (btrDef.HasAttributeDefinitions)
+                        {
+                            foreach (ObjectId id in btrDef)
+                            {
+                                DBObject obj = myT.GetObject(id, OpenMode.ForRead);
+                                try
+                                {
+                                    AttributeDefinition ad = (AttributeDefinition)obj;
+
+                                    if (ad != null)
+                                    {
+                                        _attPos.Add(ad.Tag, ad.Position);
+                                        _attDef.Add(ad);
+                                    }
+                                }
+                                catch
+                                {
+                                    try
+                                    {
+                                        Entity ent = (Entity)obj;
+                                        //Layer = ent.Layer;
+                                    }
+                                    catch { }
+                                }
+                            }
+                        }
+
+                        BlockReference blkRef = new BlockReference(_Pos3d, bt[block]);
+                        blkRef.ScaleFactors = new Scale3d(db.Cannoscale.Scale);
+                        blkRef.Layer = Basislayer;
+                        btr.AppendEntity(blkRef);
+
+
+
+                        myT.AddNewlyCreatedDBObject(blkRef, true); ;
+
+                        //Attribute befüllen
+                        if (_attPos != null)
+                        {
+                            for (int i = 0; i < _attPos.Count; i++)
+                            {
+                                AttributeReference _attRef = new AttributeReference();
+                                _attRef.SetDatabaseDefaults();
+                                _attRef.SetAttributeFromBlock(_attDef[i], Matrix3d.Identity);
+                                _attRef.SetPropertiesFrom(_attDef[i]);
+
+                                Point3d ptBase = new Point3d(blkRef.Position.X + _attRef.Position.X,
+                                                             blkRef.Position.Y + _attRef.Position.Y,
+                                                             blkRef.Position.Z + _attRef.Position.Z);
+
+
+                                _attRef.Position = ptBase;
+                                string Stammlayer = Basislayer.Substring(0, Basislayer.Length - 2);
+                                string attLayer = String.Empty;
+
+                                KeyValuePair<string, Point3d> keyValuePair = _attPos.ElementAt(i);
+                                switch(keyValuePair.Key)
+                                {
+                                    case "number":
+                                        _attRef.TextString = _PNum;
+                                        break;
+
+                                    case "height":
+                                        if(_Höhe.HasValue)
+                                            _attRef.TextString = _Höhe.Value.ToString();
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+
+                                blkRef.AttributeCollection.AppendAttribute(_attRef);
+                                myT.AddNewlyCreatedDBObject(_attRef, true);
+                            }
+                        }
+                    }
                 }
             }  
             //Block aus Prototypzeichnung holen
-            catch { }
+            catch (Autodesk.AutoCAD.Runtime.Exception e)
+            { }
 
-            //Block in Zeichnung einfügen
-            if (_btRec != null)
+            finally
             {
-                ;
+                myT.Commit();
+                myT.Dispose();
             }
 
         }
@@ -323,35 +414,68 @@ namespace CAS.myAutoCAD
 
     public sealed class Prototyp
     {
+        private bool _BlockFound = false;
         private string _blkName;
         private BlockTableRecord _btRec = null;
-
-        Database db = HostApplicationServices.WorkingDatabase;
-        Autodesk.AutoCAD.DatabaseServices.TransactionManager myTm = null;
 
         private static readonly Lazy<Prototyp> lazy =
             new Lazy<Prototyp>(() => new Prototyp());
 
         //Properties
         public string Blockname
-        { set { _blkName = value; } }
+        { set {
+                _blkName = value;
+                refresh();
+            } }
+
+        public bool OK
+        {
+            get { return _BlockFound; }
+        }
 
         public BlockTableRecord btRec
         {
-            get
-            {
-                myTm = db.TransactionManager;
+            get { return _btRec; }
+        }
+
+        private void refresh()
+        {
+            Database db = HostApplicationServices.WorkingDatabase;
+            Autodesk.AutoCAD.DatabaseServices.TransactionManager myTm = null;
+            myTm = db.TransactionManager;
                 Transaction myT = db.TransactionManager.StartTransaction();
-                try
+            try
+            {
+                using (DocumentLock dl = Application.DocumentManager.MdiActiveDocument.LockDocument())
                 {
-                    using (DocumentLock dl = Application.DocumentManager.MdiActiveDocument.LockDocument())
-                    {
-                        BlockTable bt = (BlockTable)myT.GetObject(db.BlockTableId, OpenMode.ForRead);
-                        _btRec = (BlockTableRecord)myT.GetObject(bt[_blkName], OpenMode.ForRead);
-                    }
+                    BlockTable bt = (BlockTable)myT.GetObject(db.BlockTableId, OpenMode.ForRead);
+                    _btRec = (BlockTableRecord)myT.GetObject(bt[_blkName], OpenMode.ForRead);
+                    _BlockFound = true;
                 }
-                catch { }
-                return _btRec;
+            }
+            catch { }
+
+            finally
+            {
+                myT.Commit();
+                myT.Dispose();
+            }
+
+            //if not found in dwg get it from Folder .\Blocks
+            if (!_BlockFound)
+            {
+                Assembly assembly = typeof(CAS2019).Assembly;
+                string _folderProto = Path.GetDirectoryName(assembly.Location) +"\\blocks";
+                string _fileProto = _folderProto + "\\" + _blkName + ".dwg";
+
+                if (File.Exists(_fileProto))
+                {
+                    Database dbProto = new Database();
+                    dbProto.ReadDwgFile(_fileProto, FileOpenMode.OpenTryForReadShare,false, null);
+
+                }
+                else
+                    System.Windows.Forms.MessageBox.Show("Block " + _blkName + " nicht gefunden!");
             }
         }
 
