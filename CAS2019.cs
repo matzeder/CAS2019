@@ -7,15 +7,32 @@ using System.Threading.Tasks;
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Runtime;
+using Autodesk.AutoCAD.EditorInput;
 
-[assembly: ExtensionApplication(null)]
+[assembly: ExtensionApplication(typeof(CAS.CAS2019))]
 [assembly: CommandClass(typeof(CAS.CAS2019))]
 
 namespace CAS
 {
-    public class CAS2019
+    public class CAS2019:Autodesk.AutoCAD.Runtime.IExtensionApplication 
     {
-        CAS.myFunctions.DiaSettings objSettings = new myFunctions.DiaSettings();
+        //initialization 
+        public void Initialize()
+        {
+            Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
+
+            CAS.myFunctions.DiaSettings objSettings = new myFunctions.DiaSettings();
+
+            /// <summary>
+            /// look for updates
+            /// </summary>
+            /// 
+            CAS.myUtilities.update objUpdate = new myUtilities.update();
+
+            ed.WriteMessage("CAS installed");
+        }
+
+        public void Terminate() { }
 
         //pt import
         [CommandMethod("cas_ptImport")]

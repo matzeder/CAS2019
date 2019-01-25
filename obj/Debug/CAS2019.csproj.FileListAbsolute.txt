@@ -50,3 +50,4 @@ D:\_Repository\CAS2019\obj\Debug\CAS2019.dll
 D:\_Repository\CAS2019\obj\Debug\CAS2019.pdb
 D:\_Repository\CAS2019\obj\Debug\ShowProgressBar.dlgProgress.resources
 D:\_Repository\CAS2019\obj\Debug\CAS.myFunctions.dlgPtImport.resources
+D:\_Repository\CAS2019\obj\Debug\CAS2019.csprojAssemblyReference.cache

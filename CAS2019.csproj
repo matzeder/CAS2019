@@ -48,6 +48,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -98,6 +99,7 @@
     <Compile Include="myUtilities\progressBar\MyCadCommands.cs" />
     <Compile Include="myUtilities\progressBar\MyCadDataHandler.cs" />
     <Compile Include="myUtilities\progressBar\ProcessingProgressBar.cs" />
+    <Compile Include="myUtilities\update.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
