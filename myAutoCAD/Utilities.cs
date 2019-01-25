@@ -14,7 +14,7 @@ using Autodesk.AutoCAD.DatabaseServices;
 namespace CAS.myAutoCAD
 {
     public partial class myUtilities
-    {    
+    {
         public ErrorStatus convertToDouble(string String, ref double dZahl, int? Zähler)
         {
             ErrorStatus eStatus = ErrorStatus.OutOfRange;
@@ -58,7 +58,7 @@ namespace CAS.myAutoCAD
 
                 catch (System.FormatException e)
                 {
-                    System.Windows.Forms.MessageBox.Show(sZahl + " konnte nicht konvertiert werden. (Zeile " + Zähler.ToString()+ ")");
+                    System.Windows.Forms.MessageBox.Show(sZahl + " konnte nicht konvertiert werden. (Zeile " + Zähler.ToString() + ")");
                 }
             }
 
@@ -77,15 +77,15 @@ namespace CAS.myAutoCAD
             //',' gegen '.' tauschen
             String = String.Replace(',', '.');
 
-           if (!String.Contains("."))
-               return 0;    
+            if (!String.Contains("."))
+                return 0;
 
             String = String.Substring(String.IndexOf('.') + 1);
-            string Nachkomma = String.Empty; 
+            string Nachkomma = String.Empty;
 
             foreach (char ch in String)
             {
-                if ( ch >= 48 && (int) ch <= 57)
+                if (ch >= 48 && (int)ch <= 57)
                     Nachkomma += ch;
             }
 
@@ -93,7 +93,7 @@ namespace CAS.myAutoCAD
                 Nachkomma = String.Empty;
 
             return Nachkomma.Length;
-        } 
+        }
 
         //Formatstring
         public string Formatstring(int Precision)
@@ -105,7 +105,7 @@ namespace CAS.myAutoCAD
 
             return Format;
         }
-        
+
         /// <summary>
         /// Anzahl der gültigen Nachkommastellen ermitteln
         /// </summary>
@@ -121,7 +121,7 @@ namespace CAS.myAutoCAD
 
         //    if (Wert[0] == '.')
         //        Wert = Wert.Substring(1);
-            
+
         //    return Wert.Length;
         //}
 
@@ -159,9 +159,9 @@ namespace CAS.myAutoCAD
             }
             else
                 if (dy >= 0)
-                    dPhi = 0;
-                else
-                    dPhi = Math.PI;
+                dPhi = 0;
+            else
+                dPhi = Math.PI;
 
 
 
@@ -278,29 +278,23 @@ namespace CAS.myAutoCAD
             return es;
         }
 
-        public string incString(string Wert)
-        {
-           
-            return Wert;
-        }
+        //icon to imagesource
+        //  public static class IconUtilities
+        //{
+        //    [DllImport("gdi32.dll", SetLastError = true)]
+
+        //    private static extern bool DeleteObject(IntPtr hObject);
+        //    public static System.Windows.Media.ImageSource ToImageSource(this System.Drawing.Icon icon)
+        //    {
+        //        System.Drawing.Bitmap bitmap = icon.ToBitmap();
+        //        IntPtr hBitmap = bitmap.GetHbitmap();
+        //        ImageSource wpfBitmap = Imaging.CreateBitmapSourceFromHBitmap(hBitmap,
+        //                                             IntPtr.Zero, System.Windows.Int32Rect.Empty,
+        //                                             BitmapSizeOptions.FromEmptyOptions());
+        //        if (!DeleteObject(hBitmap))
+        //        { throw new System.ComponentModel.Win32Exception(); }
+        //        return wpfBitmap;
+        //    }
+        //}
     }
-
-    //icon to imagesource
-  //  public static class IconUtilities
-    //{
-    //    [DllImport("gdi32.dll", SetLastError = true)]
-
-    //    private static extern bool DeleteObject(IntPtr hObject);
-    //    public static System.Windows.Media.ImageSource ToImageSource(this System.Drawing.Icon icon)
-    //    {
-    //        System.Drawing.Bitmap bitmap = icon.ToBitmap();
-    //        IntPtr hBitmap = bitmap.GetHbitmap();
-    //        ImageSource wpfBitmap = Imaging.CreateBitmapSourceFromHBitmap(hBitmap,
-    //                                             IntPtr.Zero, System.Windows.Int32Rect.Empty,
-    //                                             BitmapSizeOptions.FromEmptyOptions());
-    //        if (!DeleteObject(hBitmap))
-    //        { throw new System.ComponentModel.Win32Exception(); }
-    //        return wpfBitmap;
-    //    }
-    //}
 }

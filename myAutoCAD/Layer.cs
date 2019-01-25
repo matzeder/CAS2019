@@ -136,12 +136,16 @@ namespace CAS.myAutoCAD
         {
             bool LayerExists = false;
 
-            if (Layer != null)
+            if (Layer != "")
             {
                 List<string> lsLayer = new List<string>();
 
-                foreach (LayerTableRecord ltr in m_lsLayerTableRecord)
-                    lsLayer.Add(ltr.Name);
+                try
+                {
+                    foreach (LayerTableRecord ltr in m_lsLayerTableRecord)
+                        lsLayer.Add(ltr.Name);
+                }
+                catch { }
 
                 if (lsLayer.Contains(Layer))
                     LayerExists = true;

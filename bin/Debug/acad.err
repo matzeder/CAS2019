@@ -1,6 +1,6 @@
 
 
-FATAL ERROR:  Unhandled Access Violation Reading 0x0000 Exception at 9680A948h
+FATAL ERROR:  Unhandled Access Violation Reading 0x0040 Exception at 145C6010h
 
-12/10/2018 at 14:08:46.000  Drawing: Drawing1.dwg
+01/11/2019 at 11:05:02.000  Drawing: Drawing1.dwg
 -------------

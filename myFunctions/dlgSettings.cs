@@ -10,7 +10,10 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.IO;
 
+using Autodesk.AutoCAD.Runtime;
 using Autodesk.AutoCAD.DatabaseServices;
+using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.EditorInput;
 
 namespace CAS.myFunctions
 {
@@ -40,14 +43,27 @@ namespace CAS.myFunctions
                 _config.setAppSetting("Header", "PNr, X,Y,Z");
             tb_Header.Text = value;
 
-            //Output File
-            value = _config.getAppSetting("useOutputFile");
+            //3dImport
+            value = _config.getAppSetting("3dImport");
             if (value == String.Empty)
-                _config.setAppSetting("useOutputFile", "False");
-            cB_OutputFile.Checked = Convert.ToBoolean(value);
+                _config.setAppSetting("3dImport", "False");
+            cb_3dImport.Checked = Convert.ToBoolean(value);
 
+            //Output File
             value = _config.getAppSetting("OutputFile");
-            tb_PunktExport.Text = value;
+            if (File.Exists(value))
+            {
+                tb_PunktExport.Text = value;
+                cB_ExportFile.Enabled = File.Exists(value);
+
+                value = _config.getAppSetting("useOutputFile");
+                if (value == String.Empty)
+                    _config.setAppSetting("useOutputFile", "False");
+
+                cB_OutputFile.Checked = Convert.ToBoolean(value);
+            }
+            else
+                tb_PunktExport.Text = " ";
 
             //Separator & Decimal
             value = _config.getAppSetting("Separator");
@@ -60,6 +76,12 @@ namespace CAS.myFunctions
                 _config.setAppSetting("Decimal", ".");
             cb_Decimal.SelectedItem = value;
             cb_Decimal.Refresh();
+
+            //import Exportfile
+            value = _config.getAppSetting("importExportfile");
+            if (value == String.Empty)
+               cB_ExportFile.Checked = false;
+            cB_ExportFile.Checked = Convert.ToBoolean(value);
 
             //Treenode
             TreeNode root = treeView1.Nodes.Add("CAS 2019");
@@ -89,7 +111,9 @@ namespace CAS.myFunctions
             {
                 if (cbBasislayer.Items.Count > 0)
                 {
-                    DialogResult res = MessageBox.Show(_config.getAppSetting("Basislayer") + " nicht gefunden! Soll dieser Layer erstellt werden?", "", MessageBoxButtons.YesNo);
+                    DialogResult res = MessageBox.Show(_config.getAppSetting("Basislayer") 
+                                                       + " nicht gefunden! Soll dieser Layer erstellt werden?", "", 
+                                                       MessageBoxButtons.YesNo);
                     if (res == DialogResult.Yes)
                         objLayer.Add(_config.getAppSetting("Basislayer"));
                 }
@@ -102,29 +126,75 @@ namespace CAS.myFunctions
                 }
             }
 
-            //Blöcke
-            Assembly assem = typeof(CAS2019).Assembly;
-            string blockPath = Path.Combine(Path.GetDirectoryName(assem.Location), "blocks");
-            System.IO.DirectoryInfo ParentDirectory = new DirectoryInfo(blockPath);
+            //Blöcke aus Protoypzeichnung lesen
+            Document myDWG;
+            DocumentLock myDWGlock;
+            Database db = HostApplicationServices.WorkingDatabase;
+            Autodesk.AutoCAD.DatabaseServices.TransactionManager myTm = null;
+            myTm = db.TransactionManager;
+            Transaction myT = db.TransactionManager.StartTransaction();
 
-            foreach(System.IO.FileInfo fi in ParentDirectory.GetFiles())
-            {
-                if (Path.GetExtension(fi.Name) == ".dwg")
-                {
-                    string _block = Path.GetFileNameWithoutExtension(fi.Name);
-                    cbBlock.Items.Add(Path.GetFileName(_block));
-                }
-            }
+            string ProtoDWG = CAS.myUtilities.Global.Instance.PrototypFullPath;
+            lb_Prototypzeichnung.Text = ProtoDWG;
 
-            if (cbBlock.Items.Count > 0)
+            if (File.Exists(ProtoDWG))
             {
                 try
                 {
-                    cbBlock.SelectedIndex = cbBlock.FindStringExact(_config.getAppSetting("Block"));
+                    myDWG = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+                    myDWGlock = myDWG.LockDocument();
+                    Database srcDb = new Database();
+                    srcDb.ReadDwgFile(ProtoDWG, FileShare.Read, true, "");
+                    ObjectIdCollection blockIds = new ObjectIdCollection();
+
+                    Autodesk.AutoCAD.DatabaseServices.TransactionManager srcT = srcDb.TransactionManager;
+                    try
+                    {
+                        using (Transaction protoT = srcT.StartTransaction())
+                        {
+                            BlockTable bt = (BlockTable)protoT.GetObject(srcDb.BlockTableId, OpenMode.ForRead, false);
+
+                            foreach (ObjectId btrid in bt)
+                            {
+                                BlockTableRecord btr = (BlockTableRecord)protoT.GetObject(btrid, OpenMode.ForRead, false);
+                                if (!btr.IsAnonymous && !btr.IsLayout)
+                                {
+                                    blockIds.Add(btrid);
+                                    cbBlock.Items.Add(btr.Name);
+                                }
+                                btr.Dispose();
+                            }
+                        }
+                    }
+                    catch { Autodesk.AutoCAD.Runtime.Exception e; }
+
+                    finally
+                    {
+                        myT.Commit();
+                        myT.Dispose();
+                    }
+
+                    //Blöcke in aktuelle Zeichnung einfügen
+                    IdMapping mapping = new IdMapping();
+                    srcDb.WblockCloneObjects(blockIds, db.BlockTableId, mapping, DuplicateRecordCloning.Replace, false);
+
+                    srcDb.Dispose();
+                    myDWGlock.Dispose();
+                }
+                catch (Autodesk.AutoCAD.Runtime.Exception e) { }
+            }
+            else
+                MessageBox.Show("Achtung!!! Prototypzeichnung nicht gefunden!");
+
+             if (cbBlock.Items.Count > 0)
+            {
+                try
+                {
+                    cbBlock.SelectedIndex = cbBlock.FindStringExact(_config.getAppSetting("Block"));   //Block aus settings.xml suchen
                 }
                 catch
                 {
-                    cbBlock.SelectedItem = cbBlock.Items[0];
+                    cbBlock.SelectedItem = cbBlock.Items[0];  //sonst ersten Block wählen
                 }
             }
 
@@ -225,6 +295,7 @@ namespace CAS.myFunctions
             _config.setAppSetting("Decimal", cb_Decimal.Text);
         }
 
+        //max Länge 1
         private void tB_Separator_Validating(object sender, CancelEventArgs e)
         {
             string val = tB_Separator.Text;
@@ -235,6 +306,16 @@ namespace CAS.myFunctions
             }
             else
                 e.Cancel = false;
+        }
+
+        private void chkB_ExportFile_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.setAppSetting("importExportfile", cB_ExportFile.Checked.ToString());
+        }
+
+        private void cb_3dImport_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.setAppSetting("3dImport", cb_3dImport.Checked.ToString());
         }
     }
 }

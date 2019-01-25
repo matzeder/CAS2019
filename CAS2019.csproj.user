@@ -3,5 +3,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <StartAction>Program</StartAction>
     <StartProgram>C:\Program Files\Autodesk\AutoCAD 2019\acad.exe</StartProgram>
+    <StartArguments>/product MAP /language "en-US"</StartArguments>
   </PropertyGroup>
 </Project>

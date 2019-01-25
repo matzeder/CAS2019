@@ -15,12 +15,14 @@ namespace CAS
 {
     public class CAS2019
     {
+        CAS.myFunctions.DiaSettings objSettings = new myFunctions.DiaSettings();
+
         //pt import
         [CommandMethod("cas_ptImport")]
         public void CasPtImport()
         {
             myFunctions.PtImport objPtImport = new myFunctions.PtImport();
-            objPtImport.run();
+            objPtImport.start();
         }
 
         //pt export
@@ -29,6 +31,32 @@ namespace CAS
         {
             myFunctions.PtExport objPtExport = new myFunctions.PtExport();
             objPtExport.run();
+        }
+
+        //att Höhe unsichtbar schalten
+        [CommandMethod("cas_Hoff")]
+        public void CasAtInvisible()
+        {
+            myAutoCAD.Blöcke.Instance.init();
+            myAutoCAD.Blöcke.Instance.selectWindow();
+            myAutoCAD.Blöcke.Instance.switchAtt(myAutoCAD.Blöcke.mode.HeightOff);
+        }
+
+        //att Höhe sichtbar schalten
+        [CommandMethod("cas_Hon")]
+        public void CasAtVisible()
+        {
+            myAutoCAD.Blöcke.Instance.init();
+            myAutoCAD.Blöcke.Instance.selectWindow();
+            myAutoCAD.Blöcke.Instance.switchAtt(myAutoCAD.Blöcke.mode.HeightOn);
+        }
+
+        //Punkte setzen
+        [CommandMethod("cas_setPoint")]
+        public void CasSetPoint()
+        {
+            myFunctions.setPoint objSetPoint = new myFunctions.setPoint();
+            objSetPoint.start();
         }
 
         //show Settings
@@ -48,15 +76,15 @@ namespace CAS
         }
 
         //register CAS
-        [CommandMethod("cas_register")]
-        public void CasRegister()
+        [CommandMethod("regcas")]
+        public void RegisterCas()
         {
             myRegistry.regApp.register();
         }
 
         //unregister CAS
-        [CommandMethod("cas_unregister")]
-        public void CasUnregister()
+        [CommandMethod("unregcas")]
+        public void UnregisterCas()
         {
             myRegistry.regApp.unregister();
         }

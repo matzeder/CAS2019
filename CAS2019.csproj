@@ -69,16 +69,35 @@
       <DependentUpon>AboutBox_CAS.cs</DependentUpon>
     </Compile>
     <Compile Include="CAS2019.cs" />
-    <Compile Include="myFunctions\diaSettings.cs">
+    <Compile Include="myFunctions\dlgSettings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="myFunctions\diaSettings.Designer.cs">
-      <DependentUpon>diaSettings.cs</DependentUpon>
+    <Compile Include="myFunctions\dlgSettings.Designer.cs">
+      <DependentUpon>dlgSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="myFunctions\dlgPtImport.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="myFunctions\dlgPtImport.Designer.cs">
+      <DependentUpon>dlgPtImport.cs</DependentUpon>
     </Compile>
     <Compile Include="myFunctions\PtExport.cs" />
     <Compile Include="myFunctions\PtImport.cs" />
+    <Compile Include="myFunctions\setPoint.cs" />
+    <Compile Include="myUtilities\Global.cs" />
     <Compile Include="myUtilities\myConfig.cs" />
     <Compile Include="myUtilities\myRegistry.cs" />
+    <Compile Include="myUtilities\myString.cs" />
+    <Compile Include="myUtilities\progressBar\dlgProgress.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="myUtilities\progressBar\dlgProgress.designer.cs">
+      <DependentUpon>dlgProgress.cs</DependentUpon>
+    </Compile>
+    <Compile Include="myUtilities\progressBar\ILongProcessingObject.cs" />
+    <Compile Include="myUtilities\progressBar\MyCadCommands.cs" />
+    <Compile Include="myUtilities\progressBar\MyCadDataHandler.cs" />
+    <Compile Include="myUtilities\progressBar\ProcessingProgressBar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -90,8 +109,14 @@
     <EmbeddedResource Include="myFunctions\AboutBox_CAS.resx">
       <DependentUpon>AboutBox_CAS.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="myFunctions\diaSettings.resx">
-      <DependentUpon>diaSettings.cs</DependentUpon>
+    <EmbeddedResource Include="myFunctions\dlgSettings.resx">
+      <DependentUpon>dlgSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="myFunctions\dlgPtImport.resx">
+      <DependentUpon>dlgPtImport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="myUtilities\progressBar\dlgProgress.resx">
+      <DependentUpon>dlgProgress.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

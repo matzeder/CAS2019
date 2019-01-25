@@ -44,6 +44,10 @@
             this.btExportFile = new System.Windows.Forms.Button();
             this.tb_PunktExport = new System.Windows.Forms.TextBox();
             this.panelImport = new System.Windows.Forms.Panel();
+            this.cb_3dImport = new System.Windows.Forms.CheckBox();
+            this.cB_ExportFile = new System.Windows.Forms.CheckBox();
+            this.lb_Prototypzeichnung = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.cbBlock = new System.Windows.Forms.ComboBox();
             this.labelBlock = new System.Windows.Forms.Label();
             this.cbBasislayer = new System.Windows.Forms.ComboBox();
@@ -146,7 +150,7 @@
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.cb_Decimal);
-            this.groupBox1.Location = new System.Drawing.Point(39, 167);
+            this.groupBox1.Location = new System.Drawing.Point(39, 241);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(138, 113);
             this.groupBox1.TabIndex = 9;
@@ -164,9 +168,12 @@
             // 
             // tB_Separator
             // 
+            this.tB_Separator.BackColor = System.Drawing.SystemColors.Window;
+            this.tB_Separator.Font = new System.Drawing.Font("Arial Rounded MT Bold", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tB_Separator.ForeColor = System.Drawing.SystemColors.WindowText;
             this.tB_Separator.Location = new System.Drawing.Point(93, 48);
             this.tB_Separator.Name = "tB_Separator";
-            this.tB_Separator.Size = new System.Drawing.Size(31, 20);
+            this.tB_Separator.Size = new System.Drawing.Size(31, 23);
             this.tB_Separator.TabIndex = 10;
             this.tB_Separator.TextChanged += new System.EventHandler(this.tB_Separator_TextChanged);
             this.tB_Separator.Validating += new System.ComponentModel.CancelEventHandler(this.tB_Separator_Validating);
@@ -191,13 +198,16 @@
             // 
             // cb_Decimal
             // 
+            this.cb_Decimal.BackColor = System.Drawing.SystemColors.Window;
+            this.cb_Decimal.Font = new System.Drawing.Font("Arial Rounded MT Bold", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cb_Decimal.ForeColor = System.Drawing.SystemColors.WindowText;
             this.cb_Decimal.FormattingEnabled = true;
             this.cb_Decimal.Items.AddRange(new object[] {
             ".",
             ","});
             this.cb_Decimal.Location = new System.Drawing.Point(93, 84);
             this.cb_Decimal.Name = "cb_Decimal";
-            this.cb_Decimal.Size = new System.Drawing.Size(31, 21);
+            this.cb_Decimal.Size = new System.Drawing.Size(31, 23);
             this.cb_Decimal.TabIndex = 7;
             this.cb_Decimal.TextChanged += new System.EventHandler(this.cb_Decimal_TextChanged);
             // 
@@ -245,6 +255,10 @@
             // panelImport
             // 
             this.panelImport.BackColor = System.Drawing.SystemColors.Control;
+            this.panelImport.Controls.Add(this.cb_3dImport);
+            this.panelImport.Controls.Add(this.cB_ExportFile);
+            this.panelImport.Controls.Add(this.lb_Prototypzeichnung);
+            this.panelImport.Controls.Add(this.label6);
             this.panelImport.Controls.Add(this.cbBlock);
             this.panelImport.Controls.Add(this.labelBlock);
             this.panelImport.Controls.Add(this.cbBasislayer);
@@ -255,11 +269,53 @@
             this.panelImport.Size = new System.Drawing.Size(465, 400);
             this.panelImport.TabIndex = 0;
             // 
+            // cb_3dImport
+            // 
+            this.cb_3dImport.AutoSize = true;
+            this.cb_3dImport.Location = new System.Drawing.Point(84, 139);
+            this.cb_3dImport.Name = "cb_3dImport";
+            this.cb_3dImport.Size = new System.Drawing.Size(70, 17);
+            this.cb_3dImport.TabIndex = 7;
+            this.cb_3dImport.Text = "3d Import";
+            this.cb_3dImport.UseVisualStyleBackColor = true;
+            this.cb_3dImport.CheckedChanged += new System.EventHandler(this.cb_3dImport_CheckedChanged);
+            // 
+            // cB_ExportFile
+            // 
+            this.cB_ExportFile.AutoSize = true;
+            this.cB_ExportFile.Enabled = false;
+            this.cB_ExportFile.Location = new System.Drawing.Point(84, 115);
+            this.cB_ExportFile.Name = "cB_ExportFile";
+            this.cB_ExportFile.Size = new System.Drawing.Size(182, 17);
+            this.cB_ExportFile.TabIndex = 6;
+            this.cB_ExportFile.Text = "Exportdatei für Import verwenden";
+            this.cB_ExportFile.UseVisualStyleBackColor = true;
+            this.cB_ExportFile.CheckedChanged += new System.EventHandler(this.chkB_ExportFile_CheckedChanged);
+            // 
+            // lb_Prototypzeichnung
+            // 
+            this.lb_Prototypzeichnung.AutoSize = true;
+            this.lb_Prototypzeichnung.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lb_Prototypzeichnung.Location = new System.Drawing.Point(119, 13);
+            this.lb_Prototypzeichnung.Name = "lb_Prototypzeichnung";
+            this.lb_Prototypzeichnung.Size = new System.Drawing.Size(69, 13);
+            this.lb_Prototypzeichnung.TabIndex = 5;
+            this.lb_Prototypzeichnung.Text = "Prototyp.dwg";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(14, 13);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(98, 13);
+            this.label6.TabIndex = 4;
+            this.label6.Text = "Prototypzeichnung:";
+            // 
             // cbBlock
             // 
             this.cbBlock.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbBlock.FormattingEnabled = true;
-            this.cbBlock.Location = new System.Drawing.Point(78, 49);
+            this.cbBlock.Location = new System.Drawing.Point(84, 50);
             this.cbBlock.Name = "cbBlock";
             this.cbBlock.Size = new System.Drawing.Size(121, 21);
             this.cbBlock.TabIndex = 3;
@@ -268,7 +324,7 @@
             // labelBlock
             // 
             this.labelBlock.AutoSize = true;
-            this.labelBlock.Location = new System.Drawing.Point(14, 52);
+            this.labelBlock.Location = new System.Drawing.Point(41, 52);
             this.labelBlock.Name = "labelBlock";
             this.labelBlock.Size = new System.Drawing.Size(37, 13);
             this.labelBlock.TabIndex = 2;
@@ -278,7 +334,7 @@
             // 
             this.cbBasislayer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbBasislayer.FormattingEnabled = true;
-            this.cbBasislayer.Location = new System.Drawing.Point(78, 13);
+            this.cbBasislayer.Location = new System.Drawing.Point(84, 77);
             this.cbBasislayer.Name = "cbBasislayer";
             this.cbBasislayer.Size = new System.Drawing.Size(329, 21);
             this.cbBasislayer.TabIndex = 1;
@@ -287,7 +343,7 @@
             // labelBasislayer
             // 
             this.labelBasislayer.AutoSize = true;
-            this.labelBasislayer.Location = new System.Drawing.Point(14, 17);
+            this.labelBasislayer.Location = new System.Drawing.Point(21, 80);
             this.labelBasislayer.Name = "labelBasislayer";
             this.labelBasislayer.Size = new System.Drawing.Size(57, 13);
             this.labelBasislayer.TabIndex = 0;
@@ -380,5 +436,9 @@
         private System.Windows.Forms.CheckBox cB_Header;
         private System.Windows.Forms.TextBox tb_Header;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label lb_Prototypzeichnung;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.CheckBox cB_ExportFile;
+        private System.Windows.Forms.CheckBox cb_3dImport;
     }
 }

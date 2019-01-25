@@ -12,8 +12,6 @@ using Autodesk.AutoCAD.ApplicationServices;
 
 namespace CAS.myAutoCAD
 {
-
-
     public partial class Blöcke
     {
         //Methods
@@ -45,7 +43,41 @@ namespace CAS.myAutoCAD
             }
 
             return eStatus;
-        }   //selectWindow
+        }  
 
-    }   //Blöcke
+        /// <summary>
+        /// Attribute schalten
+        /// </summary>
+        /// 
+        public enum mode
+        {
+            HeightOff = 1,
+            HeightOn = 2,
+        }
+
+        public void switchAtt(mode mode)
+        {
+            switch(mode)
+            {
+                case mode.HeightOn:
+                    foreach(Messpunkt MP in ls_MP)
+                    {
+                        MP.HeightVisible(true);
+                    }
+
+                    break;
+
+                case mode.HeightOff:
+                    foreach (Messpunkt MP in ls_MP)
+                    {
+                        MP.HeightVisible(false);
+                    }
+
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
 }

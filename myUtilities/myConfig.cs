@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
+using System.IO;
 
 namespace CAS.myUtilities
 {
@@ -42,11 +43,13 @@ namespace CAS.myUtilities
         public string getAppSetting(string key)
         {
             string value;
-            //Laden der AppSettings
-            Configuration config = ConfigurationManager.OpenExeConfiguration(configFile);
+           
             //Zurückgeben der dem Key zugehörigen Value
             try
             {
+                //Laden der AppSettings
+                Configuration config = ConfigurationManager.OpenExeConfiguration(configFile);
+
                 value = config.AppSettings.Settings[key].Value;
             }
             catch
