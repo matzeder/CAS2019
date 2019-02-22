@@ -8,64 +8,68 @@ using System.Globalization;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
 
-using CAS.myAutoCAD;
+using CAS.myCAD;
 using CAS.myUtilities;
+using CAS.myUtilities.myString;
 
 namespace CAS.myFunctions
 {
     class PtExport
     {
-        private string m_Ausgabe = String.Empty;
+        private readonly string m_Ausgabe = String.Empty;
         private int m_Zähler;
-        private Editor m_ed = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.Editor;
-        private myConfig _config = new myConfig();
+        private readonly Editor m_ed = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.Editor;
+        private MyConfig _config = new MyConfig();
         
-        myAutoCAD.myUtilities m_objUtil = new myAutoCAD.myUtilities();
+        readonly myCAD.MyUtilities m_objUtil = new myCAD.MyUtilities();
 
-        public void run()
+        public void Start()
         {
-            int _digits = 2;
-            NumberFormatInfo _numberFormatInfo = new NumberFormatInfo();
-            _numberFormatInfo.NumberDecimalSeparator = _config.getAppSetting("Decimal");
-            _numberFormatInfo.NumberDecimalDigits = _digits;
+            int _digits = _config.GetAppSettingInt("decimals");
+            NumberFormatInfo _numbFormat = new NumberFormatInfo()
+            {
+                NumberDecimalSeparator = _config.GetAppSettingString("Decimal"),
+                NumberDecimalDigits = _digits
+            };
 
-            SaveFileDialog ddSaveFile = new SaveFileDialog();
-            //ddSaveFile.InitialDirectory = 
-            ddSaveFile.DefaultExt = ".csv";
-            ddSaveFile.Filter = "Punktwolke|*.csv";
+            SaveFileDialog ddSaveFile = new SaveFileDialog()
+            {
+                DefaultExt = ".csv",
+                Filter = "Punktwolke|*.csv"
+            };
 
             DialogResult diagRes = DialogResult.None;
 
-            if (!Convert.ToBoolean(_config.getAppSetting("useOutputfile")))
+            if (!Convert.ToBoolean(_config.GetAppSettingString("useOutputfile")))
                 diagRes = ddSaveFile.ShowDialog();
             else
             {
-                ddSaveFile.FileName = _config.getAppSetting("OutputFile");
+                ddSaveFile.FileName = _config.GetAppSettingString("OutputFile");
                 diagRes = DialogResult.OK;
             }
 
             if (diagRes == DialogResult.OK)
             {
-                myAutoCAD.Blöcke.Instance.init();
-                myAutoCAD.Blöcke.Instance.selectWindow();
+                myCAD.Blöcke.Instance.Init();
+                myCAD.Blöcke.Instance.SelectWindow();
 
-                if (Blöcke.Instance.count > 0)
+                if (Blöcke.Instance.Count > 0)
                 {
-                    string _Separator = _config.getAppSetting("Separator");
-                    char _Decimal = Convert.ToChar(_config.getAppSetting("Decimal"));
+                    string _Separator = _config.GetAppSettingString("Separator");
+                    char _Decimal = Convert.ToChar(_config.GetAppSettingString("Decimal"));
                     try
                     {
-                        StreamWriter sw = new StreamWriter(ddSaveFile.FileName, false, Encoding.Default);
-                        sw.NewLine = "\n";
+                        StreamWriter sw = new StreamWriter(ddSaveFile.FileName, false, Encoding.Default)
+                        { NewLine = "\n" };
 
                         //Header
-                        if (Convert.ToBoolean( _config.getAppSetting("useHeader")))
-                            sw.WriteLine(_config.getAppSetting("Header"));
+                        if (Convert.ToBoolean( _config.GetAppSettingString("useHeader")))
+                            sw.WriteLine(_config.GetAppSettingString("Header"));
 
-                        foreach (Messpunkt MP in Blöcke.Instance.lsMP)
+                        foreach (Messpunkt MP in Blöcke.Instance.LsMP)
                         {
                             //Punktnummer
-                            string Zeile = MP.getAttribute(0).Value + _Separator;
+                            string Zeile = MP.GetAttribute(0).Value + _Separator;
                             Point3d pt3d = new Point3d();
 
         //                    if (m_Settings.UCScoords)
@@ -111,76 +115,30 @@ namespace CAS.myFunctions
                             //                            case 0:
                             //Rechtswert
                             //Zeile += MP.Pos.X.ToString(m_objUtil.Formatstring(4)).Replace('.', ',') + _Separator;
-                            Zeile += MP.Pos.X.ToString(_numberFormatInfo) + _Separator;
+                            Zeile += MP.Pos.X.ToString("N", _numbFormat) + _Separator;
 
                             //Hochwert
                             //Zeile += MP.Pos.Y.ToString(m_objUtil.Formatstring(4)).Replace('.', ',') + _Separator;
-                            Zeile += MP.Pos.Y.ToString(_numberFormatInfo) + _Separator;
+                            Zeile += MP.Pos.Y.ToString("N", _numbFormat) + _Separator;
 
                             //Höhe
-                            if (MP.CASHöhe.HasValue && MP.HeigthPrecision != null)
-                            //  Zeile += MP.CASHöhe.Value.ToString(m_objUtil.Formatstring(MP.HeigthPrecision.Value)).Replace('.', ',') + ";";
-                            Zeile += MP.CASHöhe.Value.ToString(_numberFormatInfo) + _Separator;
-                                        //else
-                                        //    if (MP.Höhe.HasValue)
-                                        //    Zeile += MP.Höhe.Value.ToString(m_objUtil.Formatstring(MP.HeigthPrecision.Value)).Replace('.', ',') + ";";
-                                        //else
-                                        //    Zeile += ";";
-        //                                break;
-
-        //                            //x,z,y
-        //                            case 1:
-        //                                //Rechtswert
-        //                                Zeile += MP.Position.X.ToString(m_objUtil.Formatstring(4)).Replace('.', ',') + ";";
-
-        //                                //Höhe
-        //                                if (MP.CASHöhe.HasValue && MP.HeigthPrecision != null)
-        //                                    Zeile += MP.CASHöhe.Value.ToString(m_objUtil.Formatstring(MP.HeigthPrecision.Value)).Replace('.', ',') + ";";
-        //                                else
-        //                                    if (MP.Höhe.HasValue)
-        //                                    Zeile += MP.Höhe.Value.ToString(m_objUtil.Formatstring(MP.HeigthPrecision.Value)).Replace('.', ',') + ";";
-        //                                else
-        //                                    Zeile += ";";
-
-        //                                //Hochwert
-        //                                Zeile += MP.Position.Y.ToString(m_objUtil.Formatstring(4)).Replace('.', ',') + ";";
-        //                                break;
-
-        //                            //y,z,x
-        //                            case 2:
-        //                                //Hochwert
-        //                                Zeile += MP.Position.Y.ToString(m_objUtil.Formatstring(4)).Replace('.', ',') + ";";
-
-        //                                //Höhe
-        //                                if (MP.CASHöhe.HasValue && MP.HeigthPrecision != null)
-        //                                    Zeile += MP.CASHöhe.Value.ToString(m_objUtil.Formatstring(MP.HeigthPrecision.Value)).Replace('.', ',') + ";";
-        //                                else
-        //                                    if (MP.Höhe.HasValue)
-        //                                    Zeile += MP.Höhe.Value.ToString(m_objUtil.Formatstring(MP.HeigthPrecision.Value)).Replace('.', ',') + ";";
-        //                                else
-        //                                    Zeile += ";";
-
-        //                                //Rechtswert
-        //                                Zeile += MP.Position.X.ToString(m_objUtil.Formatstring(4)).Replace('.', ',') + ";";
-        //                                break;
-        //                        }
-        //                    }
-
-        //                    //Blockname
-        //                    //Zeile += MP.BlockReferenz.Name + ";";
-
-        //                    //Att3
-        //                    if (MP.Att3_Wert != null)
-        //                        Zeile += MP.Att3_Wert + ";";
-
-        //                    //Att4
-        //                    if (MP.Att4_Wert != null)
-        //                        Zeile += MP.Att4_Wert.Replace("\r", "") + ";";
+                            //if (MP.HöheOrg != null)
+                            //    //Zeile += MP.HöheOrg.ToString("F3" + 3.ToString()) + _Separator;
+                            //    if (!MP.Hdigits.HasValue)
+                            //        Zeile += MP.HöheOrg + _Separator;
+                            //    else
+                            //        //Zeile += MyString.StringValue(MP.HöheOrg, MP.Hdigits.Value) + _Separator;
+                            //        Zeile += String.Format(MyString.Formatstring(MP.Hdigits.Value), MP.HöheOrg);
+                            //else
+                            //    Zeile += _Separator;
 
                             //Attribute
-                            for(int i = 1; i < MP.AttCount;i++)
+                            if (MP.AttCount > 1)
                             {
-                                Zeile += MP.Attribute[i].Value + _Separator; 
+                                for (int i = 1; i < MP.AttCount; i++)
+                                {
+                                    Zeile += MP.Attribute[i].Value + _Separator;
+                                }
                             }
 
                             m_Zähler += 1;

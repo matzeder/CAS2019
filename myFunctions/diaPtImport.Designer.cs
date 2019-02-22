@@ -29,28 +29,28 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.rt_Ausgabe = new System.Windows.Forms.RichTextBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.richTextBox1);
+            this.panel1.Controls.Add(this.rt_Ausgabe);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(959, 455);
             this.panel1.TabIndex = 1;
             // 
-            // richTextBox1
+            // rt_Ausgabe
             // 
-            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox1.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBox1.Location = new System.Drawing.Point(0, 0);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(959, 455);
-            this.richTextBox1.TabIndex = 0;
-            this.richTextBox1.Text = "";
+            this.rt_Ausgabe.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rt_Ausgabe.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rt_Ausgabe.Location = new System.Drawing.Point(0, 0);
+            this.rt_Ausgabe.Name = "rt_Ausgabe";
+            this.rt_Ausgabe.Size = new System.Drawing.Size(959, 455);
+            this.rt_Ausgabe.TabIndex = 0;
+            this.rt_Ausgabe.Text = "";
             // 
             // dlgPtImport
             // 
@@ -62,7 +62,7 @@
             this.MinimizeBox = false;
             this.Name = "dlgPtImport";
             this.Text = "Import";
-            this.Load += new System.EventHandler(this.dlgPtImport_Load);
+            this.Load += new System.EventHandler(this.DlgPtImport_Load);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -71,6 +71,6 @@
         #endregion
 
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox rt_Ausgabe;
     }
 }

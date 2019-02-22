@@ -1,6 +1,7 @@
 ﻿using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Runtime;
+using _Ac = Autodesk.AutoCAD;
 using CadApp = Autodesk.AutoCAD.ApplicationServices.Application;
 
 [assembly: CommandClass(typeof(ShowProgressBar.MyCadCommands))]
@@ -27,7 +28,7 @@ namespace ShowProgressBar
             }
             finally
             {
-                Autodesk.AutoCAD.Internal.Utils.PostCommandPrompt();
+                _Ac.Internal.Utils.PostCommandPrompt();
             }
         }
 
@@ -49,7 +50,7 @@ namespace ShowProgressBar
             }
             finally
             {
-                Autodesk.AutoCAD.Internal.Utils.PostCommandPrompt();
+                _Ac.Internal.Utils.PostCommandPrompt();
             }
         }
     }

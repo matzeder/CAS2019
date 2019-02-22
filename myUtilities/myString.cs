@@ -9,19 +9,18 @@ namespace CAS.myUtilities.myString
     /// <summary>
     /// Inkrementieren eines Strings
     /// </summary>
-    public enum mode
+    public enum Mode
     {
         AlphaNumeric = 1,
         Alpha = 2,
         Numeric = 3
     }
 
-    public class myString
+    public class MyString
     {
-        public static string Increment(string text, mode mode)
+        public static string Increment(string text, Mode mode)
         {
-            int zahl;
-            bool isDigit = int.TryParse(text, out zahl);
+            bool isDigit = int.TryParse(text, out int zahl);
 
             if (isDigit)
             {
@@ -35,11 +34,11 @@ namespace CAS.myUtilities.myString
                 // Add legal characters
                 var characters = new List<char>();
 
-                if (mode == mode.AlphaNumeric || mode == mode.Numeric)
+                if (mode == Mode.AlphaNumeric || mode == Mode.Numeric)
                     for (char c = '0'; c <= '9'; c++)
                         characters.Add(c);
 
-                if (mode == mode.AlphaNumeric || mode == mode.Alpha)
+                if (mode == Mode.AlphaNumeric || mode == Mode.Alpha)
                     for (char c = 'a'; c <= 'z'; c++)
                         characters.Add(c);
 
@@ -59,6 +58,41 @@ namespace CAS.myUtilities.myString
 
                 return new string(textArr);
             }
+        }
+
+        //Zahlenstring
+        public static int Precision(string String)
+        {
+            //',' gegen '.' tauschen
+            String = String.Replace(',', '.');
+
+            if (!String.Contains("."))
+                return 0;
+
+            String = String.Substring(String.IndexOf('.') + 1);
+            string Nachkomma = String.Empty;
+
+            foreach (char ch in String)
+            {
+                if (ch >= 48 && (int)ch <= 57)
+                    Nachkomma += ch;
+            }
+
+            if (Nachkomma == "0")
+                Nachkomma = String.Empty;
+
+            return Nachkomma.Length;
+        }
+
+        //Formatstring
+        public static string Formatstring(int Precision)
+        {
+            string Format = "0.";
+
+            for (int i = 0; i < Precision; i++)
+                Format += "0";
+
+            return Format;
         }
     }
 }

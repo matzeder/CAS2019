@@ -12,19 +12,19 @@ using CAS.myUtilities.myString;
 
 namespace CAS.myFunctions
 {
-    public class setPoint
+    public class SetPoint
     {
         Editor m_ed = null;
-        myAutoCAD.myUtilities objUtil = new myAutoCAD.myUtilities();
-        myConfig _config = new myConfig();
+        readonly myCAD.MyUtilities objUtil = new myCAD.MyUtilities();
+        MyConfig _config = new MyConfig();
 
         private static string PNrZähler = "0";
 
         //Methods
-        public void start()
+        public void Start()
         {
-            string _block = _config.getAppSetting("Block");
-            string _Basislayer = _config.getAppSetting("Basislayer");
+            string _block = _config.GetAppSettingString("Block");
+            string _Basislayer = _config.GetAppSettingString("Basislayer");
             m_ed = Application.DocumentManager.MdiActiveDocument.Editor;
             PromptPointOptions prPtOpt = new PromptPointOptions("Bitte Position wählen:");
             bool cont = true;
@@ -35,17 +35,18 @@ namespace CAS.myFunctions
 
                 if (prPtRes.Status == PromptStatus.OK)
                 {
-                    PNrZähler = myString.Increment(PNrZähler, mode.AlphaNumeric);
-                    PromptStringOptions prStringOpt = new PromptStringOptions("Nr: " + PNrZähler);
-                    prStringOpt.AllowSpaces = false;
+                    PNrZähler = MyString.Increment(PNrZähler, Mode.AlphaNumeric);
+                    PromptStringOptions prStringOpt = new PromptStringOptions("Nr: " + PNrZähler)
+                    { AllowSpaces = false };
+
                     PromptResult prRes = m_ed.GetString(prStringOpt);
 
                     if (prRes.StringResult != "")
                         PNrZähler = prRes.StringResult;
 
                     Point2d pt2d = new Point2d(prPtRes.Value.X, prPtRes.Value.Y);
-                    CAS.myAutoCAD.Messpunkt MP = new myAutoCAD.Messpunkt(PNrZähler, pt2d);
-                    MP.draw(_block, _Basislayer);
+                    CAS.myCAD.Messpunkt MP = new myCAD.Messpunkt(PNrZähler, pt2d);
+                    MP.Draw(_block, _Basislayer);
                 }
                 else
                     cont = false;

@@ -2,20 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 using Autodesk.AutoCAD.Runtime;
 using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.DatabaseServices;
 
-namespace CAS.myAutoCAD
+namespace CAS.myCAD
 {
-    public partial class myUtilities
+    public partial class MyUtilities
     {
-        public ErrorStatus convertToDouble(string String, ref double dZahl, int? Zähler)
+        public ErrorStatus ConvertToDouble(string String, ref double dZahl, int? Zähler)
         {
             ErrorStatus eStatus = ErrorStatus.OutOfRange;
 
@@ -56,7 +52,9 @@ namespace CAS.myAutoCAD
                     }
                 }
 
+#pragma warning disable CS0168 // Die Variable "e" ist deklariert, wird aber nie verwendet.
                 catch (System.FormatException e)
+#pragma warning restore CS0168 // Die Variable "e" ist deklariert, wird aber nie verwendet.
                 {
                     System.Windows.Forms.MessageBox.Show(sZahl + " konnte nicht konvertiert werden. (Zeile " + Zähler.ToString() + ")");
                 }
@@ -69,41 +67,6 @@ namespace CAS.myAutoCAD
             }
 
             return eStatus;
-        }
-
-        //Zahlenstring
-        public int Precision(string String)
-        {
-            //',' gegen '.' tauschen
-            String = String.Replace(',', '.');
-
-            if (!String.Contains("."))
-                return 0;
-
-            String = String.Substring(String.IndexOf('.') + 1);
-            string Nachkomma = String.Empty;
-
-            foreach (char ch in String)
-            {
-                if (ch >= 48 && (int)ch <= 57)
-                    Nachkomma += ch;
-            }
-
-            if (Nachkomma == "0")
-                Nachkomma = String.Empty;
-
-            return Nachkomma.Length;
-        }
-
-        //Formatstring
-        public string Formatstring(int Precision)
-        {
-            string Format = "0.";
-
-            for (int i = 0; i < Precision; i++)
-                Format += "0";
-
-            return Format;
         }
 
         /// <summary>
@@ -171,7 +134,7 @@ namespace CAS.myAutoCAD
         ///<summary>
         ///Berechnung der Sehnenlänge
         ///</summary>
-        public double calcSehne(double dRadius, double dStich)
+        public double CalcSehne(double dRadius, double dStich)
         {
             double dSehnenlänge = 2 * Math.Sqrt((dRadius * dRadius) - (dRadius - dStich) * (dRadius - dStich));
 
@@ -181,15 +144,15 @@ namespace CAS.myAutoCAD
         ///<summary>
         ///Bogenkleinpunkte
         ///</summary>
-        public List<Point3d> calcBogenKleinpunkte3d(Point2d ptZentrum, double dRadius, Point3d ptAnfang, Point3d ptEnde, double dStich)
+        public List<Point3d> CalcBogenKleinpunkte3d(Point2d ptZentrum, double dRadius, Point3d ptAnfang, Point3d ptEnde, double dStich)
         {
             List<Point3d> lsPunkte = new List<Point3d>();
             Point2d ptAnfang2d = new Point2d(ptAnfang.X, ptAnfang.Y);
             Point2d ptEnde2d = new Point2d(ptEnde.X, ptEnde.Y);
 
             //erforderliche Sehnenlänge berechnen
-            myAutoCAD.myUtilities objUtil = new myAutoCAD.myUtilities();
-            double dSehne = objUtil.calcSehne(dRadius, dStich);
+            myCAD.MyUtilities objUtil = new myCAD.MyUtilities();
+            double dSehne = objUtil.CalcSehne(dRadius, dStich);
 
             //Berechnung Bogenlänge
             double dAbstandSE = ptAnfang2d.GetDistanceTo(ptEnde2d);
@@ -243,7 +206,7 @@ namespace CAS.myAutoCAD
             return lsPunkte;
         }
 
-        public ErrorStatus getTextStyleId(string Textstil, ref ObjectId TextstilId)
+        public ErrorStatus GetTextStyleId(string Textstil, ref ObjectId TextstilId)
         {
             Database db = HostApplicationServices.WorkingDatabase;
             Transaction myT = db.TransactionManager.StartTransaction();

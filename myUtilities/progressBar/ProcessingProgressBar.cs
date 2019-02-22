@@ -9,7 +9,7 @@ namespace ShowProgressBar
     public class ProcessingProgressBar : IDisposable
     {
         private dlgProgress _dlg = null;
-        private ILongProcessingObject _executingObject;
+        private readonly ILongProcessingObject _executingObject;
 
         public ProcessingProgressBar(ILongProcessingObject executingObj)
         {

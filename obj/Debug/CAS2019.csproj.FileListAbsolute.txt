@@ -43,11 +43,11 @@ D:\_Repository\CAS2019\bin\Debug\CAS2019.dll
 D:\_Repository\CAS2019\bin\Debug\CAS2019.pdb
 D:\_Repository\CAS2019\obj\Debug\CAS.CASAboutBox.resources
 D:\_Repository\CAS2019\obj\Debug\CAS.myFunctions.DiaSettings.resources
+D:\_Repository\CAS2019\obj\Debug\CAS.myFunctions.dlgPtImport.resources
+D:\_Repository\CAS2019\obj\Debug\ShowProgressBar.dlgProgress.resources
 D:\_Repository\CAS2019\obj\Debug\CAS2019.Properties.Resources.resources
 D:\_Repository\CAS2019\obj\Debug\CAS2019.csproj.GenerateResource.cache
 D:\_Repository\CAS2019\obj\Debug\CAS2019.csproj.CoreCompileInputs.cache
 D:\_Repository\CAS2019\obj\Debug\CAS2019.dll
 D:\_Repository\CAS2019\obj\Debug\CAS2019.pdb
-D:\_Repository\CAS2019\obj\Debug\ShowProgressBar.dlgProgress.resources
-D:\_Repository\CAS2019\obj\Debug\CAS.myFunctions.dlgPtImport.resources
 D:\_Repository\CAS2019\obj\Debug\CAS2019.csprojAssemblyReference.cache

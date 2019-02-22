@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Autodesk.AutoCAD.ApplicationServices;
+using AcAp = Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Runtime;
-using Autodesk.AutoCAD.EditorInput;
+using _AcEd = Autodesk.AutoCAD.EditorInput;
 
 [assembly: ExtensionApplication(typeof(CAS.CAS2019))]
 [assembly: CommandClass(typeof(CAS.CAS2019))]
@@ -19,7 +19,7 @@ namespace CAS
         //initialization 
         public void Initialize()
         {
-            Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
+            _AcEd.Editor ed = AcAp.Application.DocumentManager.MdiActiveDocument.Editor;
 
             CAS.myFunctions.DiaSettings objSettings = new myFunctions.DiaSettings();
 
@@ -27,8 +27,10 @@ namespace CAS
             /// look for updates
             /// </summary>
             /// 
-            CAS.myUtilities.update objUpdate = new myUtilities.update();
 
+           // CAS.myUtilities.myUpdate update = 
+           //     new myUtilities.myUpdate(@"\\dkv-s01\Firma\Software\Matzeder\CAS\CAS2019\CAS2019test.dll");
+            
             ed.WriteMessage("CAS installed");
         }
 
@@ -39,7 +41,7 @@ namespace CAS
         public void CasPtImport()
         {
             myFunctions.PtImport objPtImport = new myFunctions.PtImport();
-            objPtImport.start();
+            objPtImport.Start();
         }
 
         //pt export
@@ -47,38 +49,46 @@ namespace CAS
         public void CasPtExport()
         {
             myFunctions.PtExport objPtExport = new myFunctions.PtExport();
-            objPtExport.run();
+            objPtExport.Start();
         }
 
         //att Höhe unsichtbar schalten
         [CommandMethod("cas_Hoff")]
         public void CasAtInvisible()
         {
-            myAutoCAD.Blöcke.Instance.init();
-            myAutoCAD.Blöcke.Instance.selectWindow();
-            myAutoCAD.Blöcke.Instance.switchAtt(myAutoCAD.Blöcke.mode.HeightOff);
+            myCAD.Blöcke.Instance.Init();
+            myCAD.Blöcke.Instance.SelectWindow();
+            myCAD.Blöcke.Instance.SwitchAtt(myCAD.Blöcke.Mode.HeightOff);
         }
 
         //att Höhe sichtbar schalten
         [CommandMethod("cas_Hon")]
         public void CasAtVisible()
         {
-            myAutoCAD.Blöcke.Instance.init();
-            myAutoCAD.Blöcke.Instance.selectWindow();
-            myAutoCAD.Blöcke.Instance.switchAtt(myAutoCAD.Blöcke.mode.HeightOn);
+            myCAD.Blöcke.Instance.Init();
+            myCAD.Blöcke.Instance.SelectWindow();
+            myCAD.Blöcke.Instance.SwitchAtt(myCAD.Blöcke.Mode.HeightOn);
         }
 
         //Punkte setzen
         [CommandMethod("cas_setPoint")]
         public void CasSetPoint()
         {
-            myFunctions.setPoint objSetPoint = new myFunctions.setPoint();
-            objSetPoint.start();
+            myFunctions.SetPoint objSetPoint = new myFunctions.SetPoint();
+            objSetPoint.Start();
+        }
+
+        //Höhen runden
+        [CommandMethod("cas_roundHeight")]
+        public void CasRoundHeight()
+        {
+            myFunctions.RoundHeight objRoundHeight = new myFunctions.RoundHeight();
+            objRoundHeight.Start();
         }
 
         //show Settings
         [CommandMethod("cas_Settings")]
-        public void casSettings()
+        public void CasSettings()
         {
             CAS.myFunctions.DiaSettings objSettings = new myFunctions.DiaSettings();
             objSettings.ShowDialog();
@@ -96,14 +106,14 @@ namespace CAS
         [CommandMethod("regcas")]
         public void RegisterCas()
         {
-            myRegistry.regApp.register();
+            myRegistry.RegApp.Register();
         }
 
         //unregister CAS
         [CommandMethod("unregcas")]
         public void UnregisterCas()
         {
-            myRegistry.regApp.unregister();
+            myRegistry.RegApp.Unregister();
         }
     }
 }

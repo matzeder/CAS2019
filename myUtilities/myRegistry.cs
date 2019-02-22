@@ -10,14 +10,15 @@ namespace myRegistry
     /// <summary>
     /// Applikation registrieren
     /// </summary>
-        public static class regApp
+        public static class RegApp
         {
             public static string sNameDll = string.Empty;
 
-            public static void register()
+            public static void Register()
             {
                 //Pfad für {Autocad} bestimmen
-                string sProductKey = Autodesk.AutoCAD.DatabaseServices.HostApplicationServices.Current.UserRegistryProductRootKey + "\\Applications";
+                string sProductKey = Autodesk.AutoCAD.DatabaseServices.HostApplicationServices.Current.UserRegistryProductRootKey 
+                                     + "\\Applications";
 
                 //Pfad für dll bestimmen
                 string sPathDll = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -36,13 +37,13 @@ namespace myRegistry
                 key = key.OpenSubKey(sNameDll);
 
                 // Unterschlüssel hinzufügen
-                newkey.SetValue("Description", sNameDll + " von Rudi Matzeder");
+                newkey.SetValue("Description", sNameDll + " von DI Rudolf Matzeder");
                 newkey.SetValue("LOADER", sPathDll);
                 newkey.SetValue("MANAGED", 1);
                 newkey.SetValue("LOADCTRLS", 2);
             }
 
-            public static void unregister()
+            public static void Unregister()
             {
                 //Pfad für {Autocad\Applications\NAME} bestimmen
                 string sNameKey = Autodesk.AutoCAD.DatabaseServices.HostApplicationServices.Current.UserRegistryProductRootKey + "\\Applications\\" + sNameDll;
@@ -52,14 +53,14 @@ namespace myRegistry
             }
         }
 
-        public class regIO
+        public class RegIO
         {
-            private string m_sProductKey;
+            private readonly string m_sProductKey;
             public static string sNameDll = string.Empty;
             public string m_sNameDllKey;
 
             //Konstruktor
-            public regIO()
+            public RegIO()
             {
                 //Name von dll bestimmen
                 sNameDll = System.Reflection.Assembly.GetExecutingAssembly().GetName().ToString();
@@ -72,7 +73,7 @@ namespace myRegistry
 
             //Methoden
             //CheckBox registrieren
-            public void regChkBox(string Funktion, string chkBox, bool bChecked)
+            public void RegChkBox(string Funktion, string chkBox, bool bChecked)
             {
                 string sFunktionKey = m_sNameDllKey + "\\" + Funktion;
 
@@ -84,7 +85,7 @@ namespace myRegistry
             }
 
             //CheckBox Wert aus Registry auslesen
-            public bool readChkBox(string Funktion, string chkBox)
+            public bool ReadChkBox(string Funktion, string chkBox)
             {
                 bool bChecked = false;
 
@@ -116,7 +117,7 @@ namespace myRegistry
             /// <param name="Funktion"></param>
             /// <param name="Name"></param>
             /// <param name="Wert"></param>
-            public void regValue(string Funktion, string Name, object Wert)
+            public void RegValue(string Funktion, string Name, object Wert)
             {
                 string sFunktionKey = m_sNameDllKey + "\\" + Funktion;
 
@@ -136,7 +137,7 @@ namespace myRegistry
             /// <param name="Funktion"></param>
             /// <param name="Name"></param>
             /// <returns></returns>
-            public object readValue(string Funktion, string Name)
+            public object ReadValue(string Funktion, string Name)
             {
                 object Wert = null;
 

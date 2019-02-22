@@ -19,17 +19,12 @@ namespace CAS.myFunctions
             InitializeComponent();
         }
 
-        public string Text
-        {
-            set { richTextBox1.Text = value; }
-        }
-
-        public List<int> lsErrorLine
+        public List<int> LsErrorLine
         {
             set { _lsErrorLine = value; }
         }
 
-        private void dlgPtImport_Load(object sender, EventArgs e)
+        private void DlgPtImport_Load(object sender, EventArgs e)
         {
 
         }

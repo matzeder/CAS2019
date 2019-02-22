@@ -4,5 +4,11 @@
     <StartAction>Program</StartAction>
     <StartProgram>C:\Program Files\Autodesk\AutoCAD 2019\acad.exe</StartProgram>
     <StartArguments>/product MAP /language "en-US"</StartArguments>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <StartProgram>C:\Program Files\Autodesk\AutoCAD 2019\acad.exe</StartProgram>
+    <StartArguments>/product MAP /language "en-US"</StartArguments>
+    <StartAction>Program</StartAction>
   </PropertyGroup>
 </Project>

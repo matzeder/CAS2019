@@ -10,7 +10,7 @@ using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.ApplicationServices;
 
-namespace CAS.myAutoCAD
+namespace CAS.myCAD
 {
     public partial class Blöcke
     {
@@ -21,7 +21,7 @@ namespace CAS.myAutoCAD
         /// Blöcke mit Fenster wählen
         /// </summary>
         /// <returns></returns>
-        public ErrorStatus selectWindow()
+        public ErrorStatus SelectWindow()
         {
             ErrorStatus eStatus = ErrorStatus.KeyNotFound;
             SelectionSet ssRes = null;
@@ -37,8 +37,7 @@ namespace CAS.myAutoCAD
             if (resSel.Status == PromptStatus.OK)
             {
                 ssRes = resSel.Value;
-
-                fillTable(ssRes);
+                FillTable(ssRes);
                 eStatus = ErrorStatus.OK;
             }
 
@@ -49,17 +48,17 @@ namespace CAS.myAutoCAD
         /// Attribute schalten
         /// </summary>
         /// 
-        public enum mode
+        public enum Mode
         {
             HeightOff = 1,
             HeightOn = 2,
         }
 
-        public void switchAtt(mode mode)
+        public void SwitchAtt(Mode mode)
         {
             switch(mode)
             {
-                case mode.HeightOn:
+                case Mode.HeightOn:
                     foreach(Messpunkt MP in ls_MP)
                     {
                         MP.HeightVisible(true);
@@ -67,7 +66,7 @@ namespace CAS.myAutoCAD
 
                     break;
 
-                case mode.HeightOff:
+                case Mode.HeightOff:
                     foreach (Messpunkt MP in ls_MP)
                     {
                         MP.HeightVisible(false);

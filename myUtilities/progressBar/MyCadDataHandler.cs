@@ -139,11 +139,7 @@ namespace ShowProgressBar
                             
                         }
 
-                        if (ProcessingEnded != null)
-                        {
-                            ProcessingEnded(this, EventArgs.Empty);
-                        }
-
+                        ProcessingEnded?.Invoke(this, EventArgs.Empty);
                         tran.Commit();
                     }
                 }
@@ -152,10 +148,7 @@ namespace ShowProgressBar
             {
                 //Make sure the CloseProgressUIRequested event always fires, so
                 //that the progress dialog box gets closed because of this event
-                if (CloseProgressUIRequested != null)
-                {
-                    CloseProgressUIRequested(this, EventArgs.Empty);
-                }
+                CloseProgressUIRequested?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -206,20 +199,14 @@ namespace ShowProgressBar
                     tran.Commit();
                 }
 
-                if (ProcessingEnded != null)
-                {
-                    ProcessingEnded(this, EventArgs.Empty);
-                }
+                ProcessingEnded?.Invoke(this, EventArgs.Empty);
             }
             finally
             {
                 //Make sure the CloseProgressUIRequested event always fires,
                 //so that the progress dialog box gets closed because of 
                 //this event
-                if (CloseProgressUIRequested != null)
-                {
-                    CloseProgressUIRequested(this, EventArgs.Empty);
-                }
+                CloseProgressUIRequested?.Invoke(this, EventArgs.Empty);
             }
         }
 

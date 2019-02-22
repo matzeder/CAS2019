@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Globalization;
 
-using CAS.myAutoCAD;
+using CAS.myCAD;
 using CAS.myUtilities;
+using CAS.myUtilities.myString;
 using ShowProgressBar;
 
 using Autodesk.AutoCAD.EditorInput;
@@ -17,36 +19,37 @@ using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.Runtime;
 using CadApp = Autodesk.AutoCAD.ApplicationServices.Application;
 
-//[assembly: CommandClass(typeof(ShowProgressBar.MyCadCommands))]
-
 namespace CAS.myFunctions
 {
     public class PtImport : ILongProcessingObject
     {
-        private myConfig _config = new myConfig();
+        private MyConfig _config = new MyConfig();
         private string _Filename;
         private string _Text;
         private string _block, _basislayer;
         private List<int> _lsErrorLine = new List<int>();
 
         //Methoden
-        public void start()
+        public void Start()
         {
-            _block = _config.getAppSetting("Block");
-            _basislayer = _config.getAppSetting("Basislayer");
+            _block = _config.GetAppSettingString("Block");
+            _basislayer = _config.GetAppSettingString("Basislayer");
 
-            OpenFileDialog ddOpenFile = new OpenFileDialog();
-            ddOpenFile.Title = "Vermessungspunkte importieren";
-            ddOpenFile.Filter = "Punktdatei|*.csv";
+            OpenFileDialog ddOpenFile = new OpenFileDialog()
+            {
+                Title = "Vermessungspunkte importieren",
+                Filter = "Punktdatei|*.csv"
+            };
+
             Editor m_ed = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.Editor;
 
             DialogResult diagRes = DialogResult.None;
-            bool importExportfile = Convert.ToBoolean(_config.getAppSetting("importExportfile"));
+            bool importExportfile = Convert.ToBoolean(_config.GetAppSettingString("importExportfile"));
             if (!importExportfile)
                 diagRes = ddOpenFile.ShowDialog();
             else
             {
-                ddOpenFile.FileName = _config.getAppSetting("Outputfile");
+                ddOpenFile.FileName = _config.GetAppSettingString("Outputfile");
                 diagRes = DialogResult.OK;
             }
 
@@ -76,7 +79,7 @@ namespace CAS.myFunctions
         }
 
         //Messpunkte einfügen
-        private void insertMP()
+        private void InsertMP()
         {
             bool bHeader = false;
             bool bErrorIO = false;
@@ -93,43 +96,69 @@ namespace CAS.myFunctions
             {
                 try
                 {
+                    string colX = _config.GetAppSettingString("colX");
+                    string colY = _config.GetAppSettingString("colY");
+                    string colZ = _config.GetAppSettingString("colZ");
+                    string colAttH = _config.GetAppSettingString("colAttH");
+                    double Yscale = Convert.ToDouble(_config.GetAppSettingString("Yscale"));
+
                     string Zeile = arZeile[i];
                     string[] arElement = Zeile.Split(new char[] { ';' }, StringSplitOptions.None);
 
                     string PNum = arElement[0];
-                    double X = Convert.ToDouble(arElement[1].Replace(',', '.'));
-                    double Y = Convert.ToDouble(arElement[2].Replace(',', '.'));
-
-                    //Höhe
+                    double X = Convert.ToDouble(arElement[1].Replace(',', '.'), CultureInfo.InvariantCulture);
+                    double Y = Convert.ToDouble(arElement[2].Replace(',', '.'), CultureInfo.InvariantCulture);
                     double? Z = null;
-                    int? HPrec = null;
-                    bool import3d = Convert.ToBoolean(_config.getAppSetting("3dImport"));
+                    try
+                    {
+                        Z = Convert.ToDouble(arElement[3].Replace(',', '.'), CultureInfo.InvariantCulture);
+                    }
+                    catch { }
+
+                    //Höhenattribut
+                    string HöheText = String.Empty; ;
+                    bool import3d = Convert.ToBoolean(_config.GetAppSettingString("3dImport"));
 
                     try
                     {
-                        string z = arElement[3].Replace(',', '.');
+                        int idx=3;
+                        if (colAttH == "X")
+                            idx = 1;
+                        if (colAttH == "Y")
+                            idx = 2;
 
-                        if (z != String.Empty)
-                        {
-                            Z = Convert.ToDouble(z);
-
-                            //Höhe Nachkommastellen
-                            string[] arZ = z.Split('.');
-                            if (arZ.Length == 1)
-                                HPrec = 0;
-                            else
-                                HPrec = arZ[arZ.Length - 1].Length;
-                        }
+                        HöheText = @arElement[idx].Replace(',', '.');
+                        HöheText = HöheText.Replace("\r", "");
                     }
                     catch { }
 
                     Messpunkt MP = null;
+                    //ggf. Coords vertauschen
+                    Dictionary<string, double> coord = new Dictionary<string, double>
+                    {
+                        { "X", X },
+                        { "Y", Y }
+                    };
+                    if (Z.HasValue)
+                        coord.Add("Z", Z.Value);
+
+
+                    
+                    X = coord[_config.GetAppSettingString("colX")];
+                    Y = coord[_config.GetAppSettingString("colY")];
+                    Y *= Yscale;
+                    Z = coord[_config.GetAppSettingString("colZ")];
+                    double H = coord[_config.GetAppSettingString("colAttH")];
+
+                    //X-Wert
+
+
                     if (import3d)
                     {
                         if (Z.HasValue)
                         {
-                            Point3d pos = new Point3d(X, Y, Z.Value);
-                            MP = new Messpunkt(PNum, pos, Z.Value);
+                            Point3d pos = new Point3d(X, Y, H);
+                            MP = new Messpunkt(PNum, pos, HöheText);
                         }
                         else
                         {
@@ -142,12 +171,11 @@ namespace CAS.myFunctions
                         Point2d pos = new Point2d(X, Y);
 
                         if (Z.HasValue)
-                            MP = new Messpunkt(PNum, pos, Z.Value);
+                            MP = new Messpunkt(PNum, pos, HöheText);
                         else
                             MP = new Messpunkt(PNum, pos);
                     }
 
-                    MP.HeigthPrecision = HPrec;
                     lsMP.Add(MP);
                 }
                 catch
@@ -205,33 +233,25 @@ namespace CAS.myFunctions
                             }
                         }
 
-                        MP.draw(_block, _basislayer);
+                        MP.Draw(_block, _basislayer);
                     }
 
-                    if (ProcessingEnded != null)
-                    {
-                        ProcessingEnded(this, EventArgs.Empty);
-                    }
+                    ProcessingEnded?.Invoke(this, EventArgs.Empty);
 
                     MessageBox.Show(Anzahl.ToString() + " Messpunkte eingefügt!");
                 }
                 else
                 {
-                    dlgPtImport diaPtImport = new dlgPtImport();
-
-                    diaPtImport.Text = _Text;
+                    dlgPtImport diaPtImport = new dlgPtImport()
+                    { Text = _Text };
                     diaPtImport.ShowDialog();
                 }
-                    
             }
             finally
             {
                 //Make sure the CloseProgressUIRequested event always fires, so
                 //that the progress dialog box gets closed because of this event
-                if (CloseProgressUIRequested != null)
-                {
-                    CloseProgressUIRequested(this, EventArgs.Empty);
-                }
+                CloseProgressUIRequested?.Invoke(this, EventArgs.Empty);
             }
         }
         #region Implementing ILongProcessingObject interface
@@ -246,7 +266,7 @@ namespace CAS.myFunctions
 
         public void DoLongProcessingWork()
         {
-            insertMP();
+            InsertMP();
         }
 
         #endregion

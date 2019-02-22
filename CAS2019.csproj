@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,31 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>Matzeder.pfx</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="accoremgd">
@@ -48,8 +74,8 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -59,36 +85,38 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="myAutoCAD\Blöcke.cs" />
-    <Compile Include="myAutoCAD\Layer.cs" />
-    <Compile Include="myAutoCAD\Utilities.cs" />
-    <Compile Include="myAutoCAD\_basicBlocks.cs" />
+    <Compile Include="myCAD\Blöcke.cs" />
+    <Compile Include="myCAD\Layer.cs" />
+    <Compile Include="myCAD\Utilities.cs" />
+    <Compile Include="myCAD\_basicBlocks.cs" />
     <Compile Include="myFunctions\AboutBox_CAS.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="myFunctions\AboutBox_CAS.Designer.cs">
       <DependentUpon>AboutBox_CAS.cs</DependentUpon>
     </Compile>
-    <Compile Include="CAS2019.cs" />
-    <Compile Include="myFunctions\dlgSettings.cs">
+    <Compile Include="Commands.cs" />
+    <Compile Include="myFunctions\diaPtImport.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="myFunctions\dlgSettings.Designer.cs">
-      <DependentUpon>dlgSettings.cs</DependentUpon>
+    <Compile Include="myFunctions\diaPtImport.designer.cs">
+      <DependentUpon>diaPtImport.cs</DependentUpon>
     </Compile>
-    <Compile Include="myFunctions\dlgPtImport.cs">
+    <Compile Include="myFunctions\diaSettings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="myFunctions\dlgPtImport.Designer.cs">
-      <DependentUpon>dlgPtImport.cs</DependentUpon>
+    <Compile Include="myFunctions\diaSettings.Designer.cs">
+      <DependentUpon>diaSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="myFunctions\PtExport.cs" />
     <Compile Include="myFunctions\PtImport.cs" />
+    <Compile Include="myFunctions\roundHeight.cs" />
     <Compile Include="myFunctions\setPoint.cs" />
     <Compile Include="myUtilities\Global.cs" />
     <Compile Include="myUtilities\myConfig.cs" />
     <Compile Include="myUtilities\myRegistry.cs" />
     <Compile Include="myUtilities\myString.cs" />
+    <Compile Include="myUtilities\myUpdate.cs" />
     <Compile Include="myUtilities\progressBar\dlgProgress.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -99,23 +127,27 @@
     <Compile Include="myUtilities\progressBar\MyCadCommands.cs" />
     <Compile Include="myUtilities\progressBar\MyCadDataHandler.cs" />
     <Compile Include="myUtilities\progressBar\ProcessingProgressBar.cs" />
-    <Compile Include="myUtilities\update.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="myFunctions\AboutBox_CAS.resx">
       <DependentUpon>AboutBox_CAS.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="myFunctions\dlgSettings.resx">
-      <DependentUpon>dlgSettings.cs</DependentUpon>
+    <EmbeddedResource Include="myFunctions\diaPtImport.resx">
+      <DependentUpon>diaPtImport.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="myFunctions\dlgPtImport.resx">
-      <DependentUpon>dlgPtImport.cs</DependentUpon>
+    <EmbeddedResource Include="myFunctions\diaSettings.resx">
+      <DependentUpon>diaSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="myUtilities\progressBar\dlgProgress.resx">
       <DependentUpon>dlgProgress.cs</DependentUpon>
@@ -125,6 +157,12 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Matzeder.pfx" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

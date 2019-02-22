@@ -8,20 +8,20 @@ using System.IO;
 
 namespace CAS.myUtilities
 {
-    public sealed class myConfig
+    public sealed class MyConfig
     {
-        private static volatile myConfig instance;
-        private static object syncRoot = new object();
+        private static volatile MyConfig instance;
+        private static readonly object syncRoot = new object();
 
-        string configFile = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        readonly string configFile = System.Reflection.Assembly.GetExecutingAssembly().Location;
 
         //Constructor
-        public myConfig() { }
+        public MyConfig() { }
 
         //Properties
 
         //Methods
-        public static myConfig Instance
+        public static MyConfig Instance
         {
             get
             {
@@ -31,7 +31,7 @@ namespace CAS.myUtilities
                     {
                         if (instance == null)
                         {
-                            instance = new myConfig();
+                            instance = new MyConfig();
                             
                         }
                     }
@@ -40,7 +40,14 @@ namespace CAS.myUtilities
             }
         }
 
-        public string getAppSetting(string key)
+        public enum Key
+        {
+            Basislayer = 1,
+            Block = 2,
+            Outputfile = 3
+        }
+
+        public string GetAppSettingString(string key)
         {
             string value;
            
@@ -60,7 +67,47 @@ namespace CAS.myUtilities
             return value;
         }
 
-        public void setAppSetting(string key, string value)
+        public bool GetAppSettingBool(string key)
+        {
+            bool value;
+
+            //Zurückgeben der dem Key zugehörigen Value
+            try
+            {
+                //Laden der AppSettings
+                Configuration config = ConfigurationManager.OpenExeConfiguration(configFile);
+
+                value = Convert.ToBoolean(config.AppSettings.Settings[key].Value);
+            }
+            catch
+            {
+                value = false;
+            }
+
+            return value;
+        }
+
+        public int GetAppSettingInt(string key)
+        {
+            int value;
+
+            //Zurückgeben der dem Key zugehörigen Value
+            try
+            {
+                //Laden der AppSettings
+                Configuration config = ConfigurationManager.OpenExeConfiguration(configFile);
+
+                value = Convert.ToInt32(config.AppSettings.Settings[key].Value);
+            }
+            catch
+            {
+                value = 0;
+            }
+
+            return value;
+        }
+
+        public void SetAppSetting(string key, string value)
         {
             //Laden der AppSettings
             Configuration config = ConfigurationManager.OpenExeConfiguration(configFile);

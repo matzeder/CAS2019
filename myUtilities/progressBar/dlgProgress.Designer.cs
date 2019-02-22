@@ -42,7 +42,7 @@
             this.btnStop.TabIndex = 7;
             this.btnStop.Text = "&Stop";
             this.btnStop.UseVisualStyleBackColor = true;
-            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            this.btnStop.Click += new System.EventHandler(this.BtnStop_Click);
             // 
             // lblDescription
             // 
@@ -86,7 +86,7 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Execution Progress";
-            this.Shown += new System.EventHandler(this.dlgProgress_Shown);
+            this.Shown += new System.EventHandler(this.DlgProgress_Shown);
             this.ResumeLayout(false);
 
         }

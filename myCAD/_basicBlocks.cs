@@ -11,8 +11,10 @@ using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.ApplicationServices;
+using CAS.myUtilities;
+using CAS.myUtilities.myString;
 
-namespace CAS.myAutoCAD
+namespace CAS.myCAD
 {
     public partial class Messpunkt
     {
@@ -21,18 +23,18 @@ namespace CAS.myAutoCAD
         private Point3d _Pos3d;
         private string _Layer;
         private double[] _scaleFactor;
-        private double? _Höhe;
-        private double? _CASHöhe;
-        private int? _HeigthPrec;
+        private string _HöheOrg;
+        private int? _Hdigits = null;
         private BlockReference _blkRef = null;
         private List<Att> _Attributes = new List<Att>();
 
         //Constructor
-        public Messpunkt(string PNum, Point3d Pos, double Höhe)
+        public Messpunkt(string PNum, Point3d Pos, string Höhe)
         {
             _PNum = PNum;
-            _Pos3d = new Point3d(Pos.X, Pos.Y, Höhe);
-            _Höhe = Höhe;
+
+            _HöheOrg = Höhe.Replace(',','.');
+            _Pos3d = new Point3d(Pos.X, Pos.Y, Convert.ToDouble(_HöheOrg));
         }
 
         public Messpunkt(string PNum, Point2d Pos)
@@ -41,11 +43,11 @@ namespace CAS.myAutoCAD
             _Pos3d = new Point3d(Pos.X, Pos.Y, 0);
         }
 
-        public Messpunkt(string PNum, Point2d Pos, double Höhe)
+        public Messpunkt(string PNum, Point2d Pos, string Höhe)
         {
+            _HöheOrg = Höhe.Replace(',', '.');
             _PNum = PNum;
             _Pos3d = new Point3d(Pos.X, Pos.Y, 0);
-            _Höhe = Höhe;
         }
 
         public Messpunkt(BlockReference blkRef)
@@ -80,19 +82,15 @@ namespace CAS.myAutoCAD
             get { return _Pos3d; }
         }
 
-        public double? CASHöhe
+        public string HöheOrg
         {
-            get { return this._CASHöhe; }
-            set { this._CASHöhe = value; }
+            get { return _HöheOrg; }
+            set { _HöheOrg = value; }
         }
 
-        /// <summary>
-        /// Höhengenauigkeit
-        /// </summary>
-        public int? HeigthPrecision
+        public int? Hdigits
         {
-            get { return this._HeigthPrec; }
-            set { this._HeigthPrec = value; }
+            get { return _Hdigits; }
         }
 
         //Attribute
@@ -107,18 +105,70 @@ namespace CAS.myAutoCAD
         }
 
         //Methods
-        public void addAttribute(Att att)
+        public void AddAttribute(Att att)
         {
             _Attributes.Add(att);
         }
 
-        public Att getAttribute(int nr)
+        public Att GetAttribute(int nr)
         {
             Att att = null;
             if (nr <= _Attributes.Count)
                 att = _Attributes[nr];
 
             return att;
+        }
+
+        public ErrorStatus RoundHeight(int digits)
+        {
+            Database db = HostApplicationServices.WorkingDatabase;
+            Autodesk.AutoCAD.DatabaseServices.TransactionManager myTm = db.TransactionManager;
+            Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
+            ErrorStatus es = ErrorStatus.KeyNotFound;
+
+            if (this.HöheOrg != null)
+            {
+                if (MyString.Precision(this.HöheOrg) >= digits)
+                {
+                    Transaction myT = db.TransactionManager.StartTransaction();
+                    try
+                    {
+                        using (DocumentLock dl = Application.DocumentManager.MdiActiveDocument.LockDocument())
+                        {
+                            BlockTable bt = (BlockTable)myT.GetObject(db.BlockTableId, OpenMode.ForRead);
+                            ObjectId id = bt[BlockTableRecord.ModelSpace];
+
+                            AttributeCollection col = _blkRef.AttributeCollection;
+
+                            foreach (ObjectId attId in col)
+                            {
+                                AttributeReference attRef = (AttributeReference)myT.GetObject(attId, OpenMode.ForWrite);
+
+                                switch (attRef.Tag)
+                                {
+                                    case "height":
+                                        double Höhe = Convert.ToDouble(this.HöheOrg);
+                                        attRef.TextString = Höhe.ToString("F" + digits.ToString());
+                                        attRef.Dispose();
+                                        _Hdigits = digits;
+                                        es = ErrorStatus.OK;
+                                        break;
+                                }
+                            }
+                        }
+                    }
+#pragma warning disable CS0168 // Die Variable "e" ist deklariert, wird aber nie verwendet.
+                    catch (Autodesk.AutoCAD.Runtime.Exception e) { }
+#pragma warning restore CS0168 // Die Variable "e" ist deklariert, wird aber nie verwendet.
+
+                    finally
+                    {
+                        myT.Commit();
+                        myT.Dispose();
+                    }
+                }
+            }
+                return es;
         }
 
         public void HeightVisible(bool visible)
@@ -155,7 +205,8 @@ namespace CAS.myAutoCAD
                     }
                 }
             }
-            catch (Autodesk.AutoCAD.Runtime.Exception e) { }
+
+            catch { }
 
             finally
             {
@@ -164,7 +215,7 @@ namespace CAS.myAutoCAD
             }
         }
 
-        public void draw(string block, string Basislayer)
+        public void Draw(string block, string Basislayer)
         {
             Database db = HostApplicationServices.WorkingDatabase;
             Autodesk.AutoCAD.DatabaseServices.TransactionManager myTm = db.TransactionManager;
@@ -176,7 +227,7 @@ namespace CAS.myAutoCAD
             List<AttributeDefinition> _attDef = new List<AttributeDefinition>();
 
             MyLayer objLayer = MyLayer.Instance;
-            objLayer.CheckLayer(Basislayer, true);
+            //objLayer.CheckLayer(Basislayer, true);
 
             try
             {
@@ -215,12 +266,40 @@ namespace CAS.myAutoCAD
                         }
                     }
 
-                    BlockReference blkRef = new BlockReference(_Pos3d, bt[block]);
-                    blkRef.ScaleFactors = new Scale3d(db.Cannoscale.Scale);
-                    blkRef.Layer = Basislayer;
+                    BlockReference blkRef = new BlockReference(_Pos3d, bt[block])
+                    {
+                        ScaleFactors = new Scale3d(db.Cannoscale.Scale),
+                        Layer = Basislayer
+                    };
                     btr.AppendEntity(blkRef);
 
-                    myT.AddNewlyCreatedDBObject(blkRef, true); ;
+                    //XData schreiben
+                    RegAppTable acRegAppTbl;
+                    acRegAppTbl = (RegAppTable)myT.GetObject(db.RegAppTableId, OpenMode.ForRead);
+
+                    if (!acRegAppTbl.Has(Global.Instance.AppName))
+                    {
+                        using (RegAppTableRecord acRegAppTblRec = new RegAppTableRecord())
+                        {
+                            acRegAppTblRec.Name = Global.Instance.AppName;
+
+                            acRegAppTbl.UpgradeOpen();
+                            acRegAppTbl.Add(acRegAppTblRec);
+                            myT.AddNewlyCreatedDBObject(acRegAppTblRec, true);
+                        }
+                    }
+
+                    using (ResultBuffer rb = new ResultBuffer())
+                    {
+                        rb.Add(new TypedValue((int)DxfCode.ExtendedDataRegAppName, Global.Instance.AppName));
+                        rb.Add(new TypedValue((int)DxfCode.ExtendedDataWorldXCoordinate, _Pos3d));
+                        if (_HöheOrg != null)
+                            rb.Add(new TypedValue((int)DxfCode.ExtendedDataAsciiString, _HöheOrg));
+                        blkRef.XData = rb;
+                        rb.Dispose();
+                    }
+
+                    myT.AddNewlyCreatedDBObject(blkRef, true);
 
                     //Attribute befüllen
                     if (_attPos != null)
@@ -249,22 +328,26 @@ namespace CAS.myAutoCAD
                             {
                                 case "number":
                                     _attRef.TextString = _PNum;
-                                    _attRef.Layer = Stammlayer + "-P";
+                                    _attRef.Layer = Stammlayer + Global.Instance.LayNummer;
                                     break;
 
                                 case "height":
-                                    if (_Höhe.HasValue)
-                                        _attRef.TextString = _Höhe.Value.ToString("F" + _HeigthPrec.ToString());
+                                    if (_HöheOrg !=null)
+                                    {
+                                        _attRef.TextString = _HöheOrg;
+                                        _attRef.Layer = Stammlayer + Global.Instance.LayHöhe;
+                                    }
 
-                                    _attRef.Layer = Stammlayer + "-P";
                                     break;
 
                                 case "date":
                                     _attRef.Layer = Stammlayer + "-Datum";
+                                    _attRef.Layer = Stammlayer + Global.Instance.LayDatum;
                                     break;
 
                                 case "code":
-                                    _attRef.Layer = Stammlayer + "-C";
+                                    _attRef.Layer = Stammlayer + "-Code";
+                                    _attRef.Layer = Stammlayer + Global.Instance.LayCode;
                                     break;
 
                                 case "owner":
@@ -282,13 +365,35 @@ namespace CAS.myAutoCAD
                 }
             }
             //Block aus Prototypzeichnung holen
-            catch (Autodesk.AutoCAD.Runtime.Exception e) { }
+            catch { }
 
             finally
             {
-                myT.Commit();
-                
+                myT.Commit();              
                 myT.Dispose();
+            }
+        }
+
+        //XData hinzufügen
+        static void AddRegAppTableRecord(string regAppName)
+        {
+            Document doc = Application.DocumentManager.MdiActiveDocument;
+            Editor ed = doc.Editor;
+            Database db = doc.Database;
+            Transaction tr = doc.TransactionManager.StartTransaction();
+
+            using (tr)
+            {
+                RegAppTable rat = (RegAppTable)tr.GetObject(db.RegAppTableId, OpenMode.ForRead, false);
+                if (!rat.Has(regAppName))
+                {
+                    rat.UpgradeOpen();
+                    RegAppTableRecord ratr = new RegAppTableRecord {Name = regAppName };
+                    rat.Add(ratr);
+                    tr.AddNewlyCreatedDBObject(ratr, true);
+                }
+
+                tr.Commit();
             }
         }
 
@@ -297,11 +402,6 @@ namespace CAS.myAutoCAD
             private string _Value;
             private Point3d _Pos;
             private string _Layer;
-            private bool _visible;
-            private string _Textstyle;
-            private double _Height;
-            private double _Oblique;
-            private double _Width;
 
             //Constructor
             public Att() {}
@@ -339,18 +439,18 @@ namespace CAS.myAutoCAD
         protected Blöcke() { }
 
         //Properties
-        public List<Messpunkt> lsMP
+        public List<Messpunkt> LsMP
         {
             get { return ls_MP; }
         }
 
-        public int count
+        public int Count
         {
             get { return ls_MP.Count; }
         }
 
         //Methods
-        public void init()
+        public void Init()
         {
             //Datenbank initialisieren
             m_db = HostApplicationServices.WorkingDatabase;
@@ -364,20 +464,20 @@ namespace CAS.myAutoCAD
         //Instanz (Singleton)
         public static Blöcke Instance
         {
-            get { return BlöckeCreator.createInstance; }
+            get { return BlöckeCreator.CreateInstance; }
         }
 
         private sealed class BlöckeCreator
         {
             private static readonly Blöcke _Instance = new Blöcke();
 
-            public static Blöcke createInstance
+            public static Blöcke CreateInstance
             {
                 get { return _Instance; }
             }
         }
 
-        public void close()
+        public void Dispose()
         {
             try
             {
@@ -387,10 +487,9 @@ namespace CAS.myAutoCAD
             catch { }
         }
 
-        private void fillTable(SelectionSet ssRes)
+        private void FillTable(SelectionSet ssRes)
         {
             ObjectId[] objID = ssRes.GetObjectIds();
-            int i = 0;
 
             //SelectionSet iterieren
             foreach (ObjectId blkID in objID)
@@ -410,11 +509,14 @@ namespace CAS.myAutoCAD
                             Messpunkt MP = new Messpunkt(blkRef);
 
                             //XData lesen
-                            ResultBuffer rb = blkRef.XData;
+                            RegAppTable acRegAppTbl;
+                            acRegAppTbl = (RegAppTable)m_myT.GetObject(m_db.RegAppTableId, OpenMode.ForRead);
 
-                            if (rb != null)
+                            ResultBuffer rb = new ResultBuffer();
+                                rb = blkRef.XData;
+
+                                if (rb != null)
                             {
-                                int n = 0;
                                 foreach (TypedValue tv in rb)
                                 {
                                     switch (tv.TypeCode)
@@ -422,45 +524,33 @@ namespace CAS.myAutoCAD
                                         case 1000:
                                             try
                                             {
-                                                MP.CASHöhe = Convert.ToDouble(tv.Value);
-                                            }
-                                            catch { }
-
-                                            break;
-
-                                        case 1001:
-
-                                            break;
-
-                                        case 1071:
-                                            try
-                                            {
-                                                MP.HeigthPrecision = Convert.ToInt32(tv.Value);
+                                                MP.HöheOrg = (string)tv.Value;
                                             }
                                             catch { }
 
                                             break;
                                     }
-                                    n++;
                                 }
                             }
+
                             //Attribute iterieren
                             foreach (ObjectId attID in colAtt)
                             {
                                 AttributeReference attRef = (AttributeReference)m_myT.GetObject(attID, OpenMode.ForRead);
 
-                                Messpunkt.Att att = new Messpunkt.Att();
-                                att.Value = attRef.TextString;
-                                att.Pos = attRef.Position;
-                                att.Layer = attRef.Layer;
+                                Messpunkt.Att att = new Messpunkt.Att()
+                                {
+                                    Value = attRef.TextString,
+                                    Pos = attRef.Position,
+                                    Layer = attRef.Layer
+                                };
 
-                                MP.addAttribute(att);
-
+                                MP.AddAttribute(att);
 
                                 attRef.Dispose();
                             }
 
-                            lsMP.Add(MP);
+                            LsMP.Add(MP);
                         }
                     }
                     catch { }
@@ -471,107 +561,4 @@ namespace CAS.myAutoCAD
 
         }   //fillTable
     }
-
-    //public sealed class Prototyp
-    //{
-    //    private bool _BlockFound = false;
-    //    private string _blkName;
-    //    private BlockTableRecord _btRec = null;
-
-    //    private static readonly Lazy<Prototyp> lazy =
-    //        new Lazy<Prototyp>(() => new Prototyp());
-
-    //    //Properties
-    //    public string Blockname
-    //    { set {
-    //            _blkName = value;
-    //            refresh();
-    //        } }
-
-    //    public bool OK
-    //    {
-    //        get { return _BlockFound; }
-    //    }
-
-    //    public BlockTableRecord btRec
-    //    {
-    //        get { return _btRec; }
-    //    }
-
-    //    private void refresh()
-    //    {
-    //        Document myDWG;
-    //        DocumentLock myDWGlock;
-    //        Database db = HostApplicationServices.WorkingDatabase;
-    //        Autodesk.AutoCAD.DatabaseServices.TransactionManager myTm = null;
-    //        myTm = db.TransactionManager;
-    //        Transaction myT = db.TransactionManager.StartTransaction();
-
-    //        try
-    //        {
-    //            using (DocumentLock dl = Application.DocumentManager.MdiActiveDocument.LockDocument())
-    //            {
-    //                BlockTable bt = (BlockTable)myT.GetObject(db.BlockTableId, OpenMode.ForRead);
-    //                _btRec = (BlockTableRecord)myT.GetObject(bt[_blkName], OpenMode.ForRead);
-    //                _BlockFound = true;
-    //            }
-    //        }
-    //        catch { _BlockFound = false; }
-
-    //        finally
-    //        {
-    //            myT.Commit();
-    //            myT.Dispose();
-    //        }
-
-    //        //if not found in dwg get it from Folder .\Blocks
-    //        if (!_BlockFound)
-    //        {
-    //            string ProtoDWG = CAS.myUtilities.Global.Instance.PrototypFullPath;
-
-    //            if (File.Exists(ProtoDWG))
-    //            {
-    //                try
-    //                {
-    //                    myDWG = Application.DocumentManager.MdiActiveDocument;
-    //                    myDWGlock = myDWG.LockDocument();
-    //                    Database srcDb = new Database();
-    //                    srcDb.ReadDwgFile(ProtoDWG, FileShare.Read, true, "");
-    //                    ObjectIdCollection blockIds = new ObjectIdCollection();
-
-    //                    Autodesk.AutoCAD.DatabaseServices.TransactionManager srcT = srcDb.TransactionManager;
-    //                    using (Transaction protoT = srcT.StartTransaction())
-    //                    {
-    //                        BlockTable bt = (BlockTable)protoT.GetObject(srcDb.BlockTableId, OpenMode.ForRead, false);
-
-    //                        foreach(ObjectId btrid in bt)
-    //                        {
-    //                            BlockTableRecord btr = (BlockTableRecord)protoT.GetObject(btrid, OpenMode.ForRead, false);
-    //                            if(!btr.IsAnonymous && !btr.IsLayout)
-    //                            {
-    //                                blockIds.Add(btrid);
-    //                            }
-    //                            btr.Dispose();
-    //                        }
-    //                    }
-
-    //                    //Block in aktuelle Zeichnung einfügen
-    //                    IdMapping mapping = new IdMapping();
-    //                    srcDb.WblockCloneObjects(blockIds, db.BlockTableId, mapping, DuplicateRecordCloning.Replace, false);
-
-    //                    srcDb.Dispose();
-    //                    myDWGlock.Dispose();
-    //                }
-    //                catch(Autodesk.AutoCAD.Runtime.Exception e) { }
-    //            }
-    //            else
-    //                System.Windows.Forms.MessageBox.Show("Block " + _blkName + " nicht gefunden!");
-    //        }
-    //    }
-
-    //    public static Prototyp Instance
-    //        { get { return lazy.Value; } }
-
-    //    private Prototyp() { }
-    //}
 }

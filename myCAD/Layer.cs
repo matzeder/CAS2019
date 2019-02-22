@@ -7,8 +7,10 @@ using System.IO;
 
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.ApplicationServices;
+using _AcAp = Autodesk.AutoCAD.ApplicationServices;
+using _AcDb = Autodesk.AutoCAD.DatabaseServices;
 
-namespace CAS.myAutoCAD
+namespace CAS.myCAD
 {
     public partial class MyLayer
     {
@@ -41,34 +43,39 @@ namespace CAS.myAutoCAD
             catch { }
         }
         //Properties
-        public List<Autodesk.AutoCAD.DatabaseServices.LayerTableRecord> LsLayerTableRecord
+        public List<_AcDb.LayerTableRecord> LsLayerTableRecord
         {
             get { return m_lsLayerTableRecord; }
         }
 
         //Methoden
         //neuen Layer anlegen
-        public void Add(string Name)
+        public int Add(string Name)
         {
             //Datenbank
+            int isLayerCreated = 0;
             Database db = HostApplicationServices.WorkingDatabase;
             Transaction myT = db.TransactionManager.StartTransaction();
 
-            using (DocumentLock dl = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.LockDocument())
+            using (DocumentLock dl = _AcAp.Application.DocumentManager.MdiActiveDocument.LockDocument())
             {
                 LayerTable layT = (LayerTable)myT.GetObject(db.LayerTableId, OpenMode.ForWrite);
 
                 if (!layT.Has(Name))
                 {
-                    LayerTableRecord layTR = new LayerTableRecord();
-                    layTR.Name = Name;
+                    LayerTableRecord layTR = new LayerTableRecord()
+                        { Name = Name };
+
                     layT.Add(layTR);
                     m_lsLayerTableRecord.Add(layTR);
                     myT.AddNewlyCreatedDBObject(layTR, true);
+                    isLayerCreated = 1;
                 }
             }
             myT.Commit();
             myT.Dispose();
+
+            return isLayerCreated;
         }
 
         public void Refresh()
@@ -80,7 +87,7 @@ namespace CAS.myAutoCAD
             {
                 Transaction myT = db.TransactionManager.StartTransaction();
 
-                using (DocumentLock dl = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.LockDocument())
+                using (DocumentLock dl = _AcAp.Application.DocumentManager.MdiActiveDocument.LockDocument())
                 {
                     LayerTable layT = (LayerTable)myT.GetObject(db.LayerTableId, OpenMode.ForRead);
                     m_lsLayerTableRecord.Clear();
@@ -102,20 +109,23 @@ namespace CAS.myAutoCAD
         //Layerliste in csv exportieren
         public void Export()
         {
-            myAutoCAD.MyLayer objLayer = myAutoCAD.MyLayer.Instance;
+            myCAD.MyLayer objLayer = myCAD.MyLayer.Instance;
 
-            SaveFileDialog ddSaveFile = new SaveFileDialog();
-            ddSaveFile.DefaultExt = "csv";
-            ddSaveFile.Filter = "Layerliste|*.csv";
-            string dwgName = HostApplicationServices.WorkingDatabase.Filename;
-            ddSaveFile.InitialDirectory = dwgName.Substring(0, dwgName.LastIndexOf('\\'));
-            ddSaveFile.FileName = dwgName.Substring(dwgName.LastIndexOf('\\') +1, dwgName.LastIndexOf('.'));
+            string curDwg = HostApplicationServices.WorkingDatabase.Filename;
+
+            SaveFileDialog ddSaveFile = new SaveFileDialog()
+            {
+                DefaultExt = "csv",
+                Filter = "Layerliste|*.csv",
+                InitialDirectory = curDwg.Substring(0, curDwg.LastIndexOf('\\')),
+                FileName = curDwg.Substring(curDwg.LastIndexOf('\\') + 1, curDwg.LastIndexOf('.'))
+            };
 
             if (ddSaveFile.ShowDialog() == DialogResult.OK)
             {
                 StreamWriter sw = new StreamWriter(ddSaveFile.FileName, false, Encoding.Default);
 
-                foreach (Autodesk.AutoCAD.DatabaseServices.LayerTableRecord objLTR in objLayer.LsLayerTableRecord)
+                foreach (_AcDb.LayerTableRecord objLTR in objLayer.LsLayerTableRecord)
                 {
                     string Zeile = objLTR.Name + ";";
                     Zeile += objLTR.Color.ToString() + ";";

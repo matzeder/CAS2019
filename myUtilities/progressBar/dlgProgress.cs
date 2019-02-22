@@ -59,7 +59,7 @@ namespace ShowProgressBar
                 pBar.Minimum = 0;
                 pBar.Maximum = e.LoopCount;
                 pBar.Value = 0;
-                lblDescription.Text = "";
+                lblDescription.Text = "importiere Messpunkte";
                 _loopCount = e.LoopCount;
             }
 
@@ -88,7 +88,7 @@ namespace ShowProgressBar
             }
         }
 
-        private void dlgProgress_Shown(object sender, EventArgs e)
+        private void DlgProgress_Shown(object sender, EventArgs e)
         {
             Application.DoEvents();
 
@@ -102,7 +102,7 @@ namespace ShowProgressBar
             }
         }
 
-        private void btnStop_Click(object sender, EventArgs e)
+        private void BtnStop_Click(object sender, EventArgs e)
         {
             _stop = true;
         }
